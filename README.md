@@ -1,7 +1,17 @@
-# Spotify Discovery Pain — AI Review Discovery Engine
+# 01 — Spotify Discovery Pain · AI Review Discovery Engine
 
-> Capstone PM project: an AI-native workflow that mines Spotify user feedback at scale
-> to surface why discovery feels broken — even with world-class recommendations.
+> Part 1 of a 3-folder capstone PM project on Spotify music discovery.
+> An AI-native workflow that mines Spotify user feedback at scale to
+> surface why discovery feels broken — even with world-class recommendations.
+
+📁 **Sibling folders:**
+- [`../02-mvp/`](../02-mvp/) — the AI-native MVP (Sonar) that operationalises these insights
+- [`../03-research-and-deck/`](../03-research-and-deck/) — interviews, problem definition, and the final 10-slide deck
+
+📄 **Read first:**
+- [`doc/problemStatement.md`](./doc/problemStatement.md) — full project brief + this engine's mandate
+- [`doc/architecture.md`](./doc/architecture.md) — detailed engine architecture (every component mapped to a file)
+- [`doc/deployment.md`](./doc/deployment.md) — how to deploy this to Streamlit Cloud + wire up GitHub Actions
 
 ## Working hypothesis
 

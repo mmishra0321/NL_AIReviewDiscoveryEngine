@@ -58,102 +58,268 @@ SPOTIFY_GRAY = "#B3B3B3"
 st.markdown(
     f"""
     <style>
-    .stApp {{ background-color: {SPOTIFY_BLACK}; color: #FFFFFF; }}
-    h1, h2, h3, h4 {{ color: #FFFFFF; }}
-    .metric-pill {{
-        display: inline-block;
-        background: #2A2A2A;
-        border: 1px solid #333;
-        color: #FFFFFF;
-        padding: 6px 14px;
-        border-radius: 999px;
-        margin-right: 8px;
-        margin-bottom: 8px;
-        font-size: 13px;
+    /* ============================================================
+       React-parity theme. Mirrors the Tailwind tokens used in the
+       local dev React UI (frontend/src/index.css + tailwind.config).
+       ============================================================ */
+    .stApp {{ background-color: #0a0a0a; color: #ffffff; }}
+    .block-container {{ padding-top: 1.5rem !important; max-width: 1280px !important; }}
+    h1, h2, h3, h4, h5, h6 {{ color: #ffffff; letter-spacing: -0.01em; }}
+    a {{ color: #b3b3b3; text-decoration: none; }}
+    a:hover {{ color: #ffffff; }}
+
+    /* ----- Header ----- */
+    .app-header {{
+        display: flex; align-items: center; gap: 12px;
+        padding: 4px 0 12px 0;
+        border-bottom: 1px solid #2a2a2a;
+        margin-bottom: 24px;
     }}
-    .metric-pill strong {{ color: {SPOTIFY_GREEN}; }}
+    .logo-box {{
+        width: 32px; height: 32px; border-radius: 8px;
+        background: rgba(29,185,84,0.15);
+        border: 1px solid rgba(29,185,84,0.30);
+        display: inline-flex; align-items: center; justify-content: center;
+        color: {SPOTIFY_GREEN}; font-size: 16px;
+    }}
+    .brand-block {{ display: flex; flex-direction: column; line-height: 1.15; }}
+    .brand-text {{ font-size: 14px; font-weight: 600; color: #fff; }}
+    .brand-sub  {{ font-size: 11px; color: #6b7280; }}
+    .header-right {{ margin-left: auto; display: flex; gap: 14px; }}
+    .header-right a {{ font-size: 12px; color: #b3b3b3; }}
+
+    /* ----- Hero card ----- */
+    .hero {{
+        border-radius: 16px;
+        border: 1px solid #2a2a2a;
+        background: linear-gradient(135deg, #141414 0%, #141414 50%, #1a1a1a 100%);
+        padding: 28px 28px;
+        margin-bottom: 28px;
+    }}
+    .kicker {{
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.10em;
+        color: {SPOTIFY_GREEN}; font-weight: 600;
+    }}
+    .hero h1 {{
+        font-size: 26px; font-weight: 700; margin: 6px 0 10px 0;
+        color: #fff; line-height: 1.22; max-width: 760px;
+    }}
+    .hero p {{
+        font-size: 14px; color: #b3b3b3; line-height: 1.65; margin: 0; max-width: 760px;
+    }}
+
+    /* ----- Stat tile ----- */
+    .stat-tile {{
+        border-radius: 10px;
+        border: 1px solid #2a2a2a;
+        background: #141414;
+        padding: 10px 14px;
+        height: 100%;
+    }}
+    .stat-label {{
+        font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+        color: #6b7280; font-weight: 500; display: flex; align-items: center; gap: 5px;
+    }}
+    .stat-value {{ font-size: 17px; font-weight: 700; color: #fff; margin-top: 3px; }}
+    .stat-sub   {{ font-size: 11px; color: #6b7280; margin-top: 1px;
+                   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+
+    /* ----- Source pills ----- */
+    .src-pill {{
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 2px 8px; margin: 2px 3px 2px 0;
+        border-radius: 6px; font-size: 11.5px;
+        border: 1px solid;
+    }}
+    .src-app_store    {{ background: rgba(59,130,246,.15); color: #93c5fd; border-color: rgba(59,130,246,.3); }}
+    .src-play_store   {{ background: rgba(16,185,129,.15); color: #6ee7b7; border-color: rgba(16,185,129,.3); }}
+    .src-youtube      {{ background: rgba(239,68,68,.15);  color: #fca5a5; border-color: rgba(239,68,68,.3); }}
+    .src-reddit       {{ background: rgba(249,115,22,.15); color: #fdba74; border-color: rgba(249,115,22,.3); }}
+    .src-trustpilot   {{ background: rgba(20,184,166,.15); color: #5eead4; border-color: rgba(20,184,166,.3); }}
+    .src-curated_seed {{ background: rgba(168,85,247,.15); color: #d8b4fe; border-color: rgba(168,85,247,.3); }}
+    .src-default      {{ background: #1a1a1a; color: #b3b3b3; border-color: #2a2a2a; }}
+
+    /* ----- Tagged pills ----- */
+    .tag-pill {{
+        display: inline-block; padding: 2px 8px; margin: 2px 3px 2px 0;
+        background: rgba(59,130,246,.15); color: #93c5fd;
+        border: 1px solid rgba(59,130,246,.3);
+        border-radius: 6px; font-size: 11.5px;
+    }}
+    .meta-label {{ color: #6b7280; font-size: 12px; padding-right: 6px; }}
+
+    /* ----- Section header (kicker + title + subtitle) ----- */
+    .section-head {{ margin: 12px 0 10px 0; }}
+    .section-head h2 {{ font-size: 18px; font-weight: 600; color: #fff;
+                       margin: 2px 0 2px 0; letter-spacing: -0.01em; }}
+    .section-head p  {{ font-size: 13px; color: #b3b3b3; margin: 0; }}
+
+    /* ----- Canonical question card ----- */
     .qcard {{
-        background: #232323;
-        border: 1px solid #2F2F2F;
+        background: #141414;
+        border: 1px solid #2a2a2a;
         border-radius: 12px;
-        padding: 16px 18px;
+        padding: 14px 16px;
         height: 100%;
         transition: border-color .15s ease, background .15s ease;
     }}
     .qcard:hover {{ border-color: {SPOTIFY_GREEN}; }}
     .qcard-selected {{
-        background: #1E2F22 !important;
+        background: #18221c !important;
         border-color: {SPOTIFY_GREEN} !important;
+        box-shadow: 0 0 0 1px rgba(29,185,84,0.35);
     }}
+    .qcard .qid {{
+        font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+        color: #6b7280; font-weight: 500;
+    }}
+    .qcard .qshort {{ font-size: 14.5px; font-weight: 600; color: #fff; margin: 4px 0 6px 0; }}
+    .qcard .qfull  {{ font-size: 12.5px; color: #b3b3b3; line-height: 1.45; }}
+
+    /* ----- GitHub Action run row ----- */
+    .run-row {{
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        background: rgba(26,26,26,.4);
+        padding: 12px 14px; margin-bottom: 10px;
+    }}
+    .run-row.primary {{ border-color: rgba(29,185,84,0.40); }}
+    .run-line {{ display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }}
+    .run-title {{ font-weight: 600; color: #fff; font-size: 14px; }}
+    .run-meta  {{ color: #6b7280; font-size: 12px; }}
+    .run-sha   {{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6b7280; font-size: 11px; }}
+    .status-badge {{
+        display: inline-flex; align-items: center; gap: 4px;
+        padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+        border: 1px solid;
+    }}
+    .status-success       {{ background: rgba(29,185,84,.15);  color: {SPOTIFY_GREEN}; border-color: rgba(29,185,84,.4); }}
+    .status-failure       {{ background: rgba(239,68,68,.15);  color: #fca5a5;        border-color: rgba(239,68,68,.3); }}
+    .status-pending       {{ background: rgba(245,158,11,.15); color: #fcd34d;        border-color: rgba(245,158,11,.3); }}
+    .status-cancelled,
+    .status-skipped       {{ background: #1a1a1a;              color: #b3b3b3;        border-color: #2a2a2a; }}
+    .status-no_action_yet {{ background: rgba(59,130,246,.15); color: #93c5fd;        border-color: rgba(59,130,246,.3); }}
+    .dl-btn {{
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 5px 10px; border-radius: 6px;
+        background: rgba(255,255,255,.04); color: #d1d5db;
+        border: 1px solid #2a2a2a;
+        font-size: 11.5px; text-decoration: none;
+        margin: 4px 6px 0 0;
+    }}
+    .dl-btn:hover {{ background: rgba(29,185,84,.10); color: #fff; border-color: rgba(29,185,84,.4); }}
+
+    /* ----- Review card (in answer panels) ----- */
     .review-card {{
-        background: #1C1C1C;
+        background: rgba(26,26,26,.5);
+        border: 1px solid #2a2a2a;
         border-left: 3px solid {SPOTIFY_GREEN};
-        padding: 12px 14px;
+        padding: 10px 14px;
         border-radius: 8px;
-        margin-bottom: 10px;
-        font-size: 14px;
+        margin-bottom: 8px;
+        font-size: 13.5px; line-height: 1.55;
     }}
-    .review-meta {{
-        color: {SPOTIFY_GRAY};
-        font-size: 12px;
-        margin-top: 6px;
-    }}
+    .review-meta {{ color: #6b7280; font-size: 11.5px; margin-top: 6px; }}
     .seed-badge {{
-        display: inline-block;
-        background: #2D5016;
-        color: #B8E994;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        margin-left: 6px;
+        display: inline-block; background: rgba(168,85,247,.15); color: #d8b4fe;
+        border: 1px solid rgba(168,85,247,.3);
+        padding: 1px 7px; border-radius: 4px; font-size: 10.5px; margin-left: 6px;
     }}
     .source-badge {{
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        margin-right: 6px;
-        background: #333;
+        display: inline-block; padding: 1px 7px; border-radius: 4px;
+        font-size: 10.5px; margin-right: 6px; background: #2a2a2a; color: #d1d5db;
     }}
-    .scope-out {{
-        background: #3A1C1C;
-        border: 1px solid #6F2D2D;
-        color: #FFB4B4;
-        padding: 14px;
-        border-radius: 8px;
-        margin-top: 12px;
-    }}
+
+    /* ----- Answer block ----- */
     .answer-block {{
-        background: #1E1E1E;
-        border-left: 4px solid {SPOTIFY_GREEN};
+        background: linear-gradient(135deg, rgba(29,185,84,.05), transparent);
+        border: 1px solid rgba(29,185,84,.30);
         padding: 16px 18px;
-        border-radius: 6px;
-        line-height: 1.55;
-        font-size: 15px;
+        border-radius: 10px;
+        line-height: 1.6;
+        font-size: 14.5px; color: rgba(255,255,255,.95);
+        white-space: pre-wrap;
     }}
     .feature-pill {{
-        display: inline-block;
-        background: #1E3A28;
-        color: #B8E994;
-        padding: 2px 8px;
-        border-radius: 12px;
-        margin: 2px 4px 2px 0;
-        font-size: 12px;
+        display: inline-block; background: rgba(29,185,84,.15); color: #6ee7b7;
+        border: 1px solid rgba(29,185,84,.3);
+        padding: 2px 8px; border-radius: 6px; margin: 2px 4px 2px 0;
+        font-size: 11.5px;
     }}
+    .scope-out {{
+        background: rgba(245,158,11,.07);
+        border: 1px solid rgba(245,158,11,.30);
+        color: #fcd34d;
+        padding: 14px 16px; border-radius: 10px; margin-top: 12px;
+    }}
+
+    /* ----- Streamlit native widget restyling ----- */
     .stTextInput input, .stTextArea textarea {{
-        background: #2A2A2A;
-        color: #FFFFFF;
-        border: 1px solid #444;
+        background: #141414;
+        color: #ffffff;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
     }}
-    .stButton button {{
+    .stTextInput input:focus, .stTextArea textarea:focus {{
+        border-color: {SPOTIFY_GREEN};
+        box-shadow: 0 0 0 2px rgba(29,185,84,.20);
+    }}
+    .stSelectbox > div > div {{ background: #141414; border-color: #2a2a2a; }}
+    .stMultiSelect > div > div {{ background: #141414; border-color: #2a2a2a; }}
+    /* Default (secondary) button -> outlined; primary -> Spotify green */
+    .stButton > button {{
+        background: #141414;
+        color: #d1d5db;
+        font-weight: 500;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        transition: all .15s ease;
+    }}
+    .stButton > button:hover:not(:disabled) {{
+        background: rgba(29,185,84,.10);
+        color: #fff;
+        border-color: rgba(29,185,84,.4);
+    }}
+    .stButton > button[kind="primary"] {{
         background: {SPOTIFY_GREEN};
-        color: {SPOTIFY_BLACK};
+        color: #0a0a0a;
         font-weight: 600;
-        border: none;
+        border-color: {SPOTIFY_GREEN};
     }}
-    .stButton button:hover {{
+    .stButton > button[kind="primary"]:hover {{
         background: #1ED760;
-        color: {SPOTIFY_BLACK};
+        color: #0a0a0a;
+        border-color: #1ED760;
+    }}
+    .stDownloadButton > button {{
+        background: {SPOTIFY_GREEN};
+        color: #0a0a0a;
+        font-weight: 600;
+        border: 1px solid {SPOTIFY_GREEN};
+        border-radius: 8px;
+    }}
+    .stDownloadButton > button:hover {{ background: #1ED760; border-color: #1ED760; color: #0a0a0a; }}
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {{ gap: 6px; border-bottom: 1px solid #2a2a2a; }}
+    .stTabs [data-baseweb="tab"] {{
+        background: transparent; color: #b3b3b3; font-size: 13px;
+        padding: 8px 12px; border-radius: 8px 8px 0 0;
+    }}
+    .stTabs [aria-selected="true"] {{
+        color: {SPOTIFY_GREEN} !important;
+        border-bottom: 2px solid {SPOTIFY_GREEN};
+    }}
+
+    /* Code block (architecture diagram) */
+    .stCode {{ background: #0f0f0f !important; border: 1px solid #2a2a2a; border-radius: 10px; }}
+
+    /* Footer */
+    .app-footer {{
+        margin-top: 36px; padding: 18px 0;
+        border-top: 1px solid #2a2a2a;
+        color: #6b7280; font-size: 11.5px;
+        display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
     }}
     </style>
     """,
@@ -205,20 +371,97 @@ def reviews_to_excel_bytes(df: pd.DataFrame) -> bytes:
 
 # ---------------- Helpers ----------------
 
-def format_metadata_pills(meta: dict) -> str:
-    last = meta.get("last_refresh_utc")
-    if last:
-        try:
-            last_human = datetime.fromisoformat(last.replace("Z", "+00:00")).strftime("%d %b %Y, %H:%M UTC")
-        except Exception:                                            # noqa: BLE001
-            last_human = last
-    else:
-        last_human = "never"
+def _relative(iso: str | None) -> str:
+    if not iso:
+        return "unknown"
+    try:
+        t = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except Exception:                                                 # noqa: BLE001
+        return iso
+    diff = (datetime.now(t.tzinfo) - t).total_seconds()
+    if diff < 60:   return f"{int(diff)}s ago"
+    if diff < 3600: return f"{int(diff // 60)}m ago"
+    if diff < 86400: return f"{int(diff // 3600)}h ago"
+    return f"{int(diff // 86400)}d ago"
+
+
+def _format_utc(iso: str | None) -> str:
+    if not iso:
+        return "never"
+    try:
+        return datetime.fromisoformat(iso.replace("Z", "+00:00")).strftime("%a, %d %b %Y %H:%M UTC")
+    except Exception:                                                 # noqa: BLE001
+        return iso
+
+
+def _source_label(s: str) -> str:
+    return {
+        "app_store": "App Store", "play_store": "Play Store", "youtube": "YouTube",
+        "reddit": "Reddit", "trustpilot": "Trustpilot", "community": "Community",
+        "curated_seed": "Seed",
+    }.get(s, s)
+
+
+def _source_class(s: str) -> str:
+    known = {"app_store", "play_store", "youtube", "reddit", "trustpilot", "curated_seed"}
+    return f"src-{s}" if s in known else "src-default"
+
+
+def stat_tile_html(icon: str, label: str, value: str, sub: str | None = None) -> str:
+    sub_html = f'<div class="stat-sub">{sub}</div>' if sub else ""
     return (
-        f'<div class="metric-pill">Last refresh: <strong>{last_human}</strong></div>'
-        f'<div class="metric-pill">Reviews collected: <strong>{meta.get("total_normalized", 0):,}</strong></div>'
-        f'<div class="metric-pill">Discovery-relevant: <strong>{meta.get("total_relevant", 0):,}</strong></div>'
-        f'<div class="metric-pill">In vector index: <strong>{meta.get("chroma_collection_size", 0):,}</strong></div>'
+        f'<div class="stat-tile">'
+        f'  <div class="stat-label">{icon}{label}</div>'
+        f'  <div class="stat-value">{value}</div>'
+        f'  {sub_html}'
+        f'</div>'
+    )
+
+
+def render_header() -> None:
+    st.markdown(
+        """
+        <div class="app-header">
+            <div class="logo-box">♪</div>
+            <div class="brand-block">
+                <div class="brand-text">Spotify Discovery · AI Review Engine</div>
+                <div class="brand-sub">RAG over App Store · Play Store · YouTube</div>
+            </div>
+            <div class="header-right">
+                <a href="https://github.com/mmishra0321/NL_AIReviewDiscoveryEngine" target="_blank">↗ repo</a>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_hero() -> None:
+    st.markdown(
+        """
+        <div class="hero">
+            <div class="kicker">PM CAPSTONE · SPOTIFY GROWTH</div>
+            <h1>Why meaningful music discovery still fails at scale, in users' own words.</h1>
+            <p>This engine scrapes, normalizes, classifies, embeds, and RAG-synthesizes thousands of
+            real reviews to answer six canonical PM questions about discovery, recommendations, and
+            repetitive listening. Every answer cites the exact reviews that support it.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_section_head(kicker: str, title: str, subtitle: str | None = None) -> None:
+    sub_html = f"<p>{subtitle}</p>" if subtitle else ""
+    st.markdown(
+        f"""
+        <div class="section-head">
+            <div class="kicker">{kicker}</div>
+            <h2>{title}</h2>
+            {sub_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -227,17 +470,25 @@ def render_review(rid: str, df: pd.DataFrame) -> None:
     if row.empty:
         return
     r = row.iloc[0]
-    seed_badge = '<span class="seed-badge">🌱 curated seed</span>' if r["source"] == "curated_seed" else ""
+    src = r["source"]
+    src_html = f'<span class="src-pill {_source_class(src)}">{_source_label(src)}</span>'
     rating = f"{'⭐' * int(r['rating'])}" if r["rating"] and r["rating"] > 0 else ""
     url = r.get("url") or ""
-    url_link = f'<a href="{url}" target="_blank" style="color:#888;text-decoration:none;">↗ source</a>' if url else ""
+    url_link = (
+        f'<a href="{url}" target="_blank" style="color:#9ca3af;">↗</a>'
+        if url else ""
+    )
+    locale = r["locale"] or ""
+    date = (r["date"] or "")[:10]
     st.markdown(
         f"""<div class="review-card">
-            <div>{r['text']}</div>
-            <div class="review-meta">
-                <span class="source-badge">{r['source']}</span>
-                {rating} · {r['locale'] or ''} · {(r['date'] or '')[:10]} {seed_badge} · {url_link}
+            <div style="margin-bottom:6px;">{src_html} {rating}
+                <span style="color:#9ca3af;font-size:11.5px;margin-left:4px;">
+                    {locale}{' · ' if locale and date else ''}{date}
+                </span>
+                <span style="float:right;">{url_link}</span>
             </div>
+            <div style="color:rgba(255,255,255,.92);">{r['text']}</div>
         </div>""",
         unsafe_allow_html=True,
     )
@@ -283,43 +534,85 @@ def render_answer_with_reviews(answer_text: str, features: list[str], segments: 
         st.caption("All supporting reviews shown.")
 
 
-# ---------------- Header ----------------
+# ---------------- Page render ----------------
 
-st.markdown(
-    f"""
-    <h1 style="color:{SPOTIFY_GREEN};margin-bottom:0;">🎧 Spotify Discovery Pain</h1>
-    <p style="color:{SPOTIFY_GRAY};margin-top:4px;">
-        AI-powered review discovery engine. What real users say about Spotify's recommendations.
-    </p>
-    """,
-    unsafe_allow_html=True,
-)
+render_header()
+render_hero()
 
 meta = load_metadata()
 df_reviews = load_reviews_df()
 canon = load_canon_answers()
 
-st.markdown(format_metadata_pills(meta), unsafe_allow_html=True)
+# --- Stat tiles row ---
+scrape_counts = meta.get("scrape_counts_this_run") or {}
+scraped_this_run = sum(scrape_counts.values()) if scrape_counts else 0
+total_norm = meta.get("total_normalized", 0)
+total_rel = meta.get("total_relevant", 0)
+relevance_pct = round((total_rel / total_norm) * 100) if total_norm else 0
+last_iso = meta.get("last_refresh_utc")
+last_rel = _relative(last_iso) if last_iso else "never"
+last_utc = _format_utc(last_iso)
+chroma_size = meta.get("chroma_collection_size", 0)
 
-c1, c2, c3 = st.columns([1, 1, 4])
-with c1:
+tile_cols = st.columns([1.2, 1, 1.2, 1, 1.2, 1.2], gap="small")
+with tile_cols[0]:
+    st.markdown(stat_tile_html("🕒 ", "Last refresh", last_rel, last_utc if last_iso else None),
+                unsafe_allow_html=True)
+with tile_cols[1]:
+    st.markdown(stat_tile_html("📦 ", "Normalized", f"{total_norm:,}", "capped to 1000"),
+                unsafe_allow_html=True)
+with tile_cols[2]:
+    st.markdown(stat_tile_html("🎯 ", "Discovery-relevant", f"{total_rel:,}",
+                                f"{relevance_pct}% of capped"),
+                unsafe_allow_html=True)
+with tile_cols[3]:
+    st.markdown(stat_tile_html("🧠 ", "In Chroma", f"{chroma_size:,}", "embeddings"),
+                unsafe_allow_html=True)
+with tile_cols[4]:
+    scrape_sub = (
+        " · ".join(f"{k}:{v}" for k, v in scrape_counts.items())
+        if scraped_this_run else "reused cached raw"
+    )
+    st.markdown(stat_tile_html("🌐 ", "Scraped this run",
+                                f"{scraped_this_run:,}" if scraped_this_run else "-",
+                                scrape_sub),
+                unsafe_allow_html=True)
+with tile_cols[5]:
     if not df_reviews.empty:
         st.download_button(
-            label="⬇ Download all (Excel)",
+            label="⬇ Excel",
             data=reviews_to_excel_bytes(df_reviews),
             file_name=f"spotify_reviews_{datetime.utcnow().strftime('%Y%m%d')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
         )
-with c2:
-    if not df_reviews.empty:
         st.download_button(
-            label="⬇ Relevant only (Excel)",
+            label="⬇ Relevant only",
             data=reviews_to_excel_bytes(df_reviews[df_reviews["is_relevant"] == True]),
             file_name=f"spotify_reviews_relevant_{datetime.utcnow().strftime('%Y%m%d')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
         )
 
-st.markdown("---")
+# --- Source + Tagged pills row ---
+by_source = meta.get("by_source", {}) or {}
+by_tag = meta.get("by_canonical_tag", {}) or {}
+
+source_pills = "".join(
+    f'<span class="src-pill {_source_class(s)}"><strong>{n:,}</strong> {_source_label(s)}</span>'
+    for s, n in by_source.items()
+)
+tag_pills = "".join(
+    f'<span class="tag-pill">{k.replace("Q1_", "").replace("Q2_", "").replace("Q3_", "").replace("Q4_", "").replace("Q5_", "").replace("Q6_", "")} · {v}</span>'
+    for k, v in by_tag.items()
+)
+st.markdown(
+    f'<div style="margin-top:10px;font-size:12px;">'
+    f'<span class="meta-label">By source:</span>{source_pills}'
+    f'<span class="meta-label" style="padding-left:14px;">Tagged:</span>{tag_pills}'
+    f'</div>',
+    unsafe_allow_html=True,
+)
 
 # ---------------- GitHub Actions history ----------------
 
@@ -333,42 +626,27 @@ def load_action_runs() -> dict:
         return {"runs": [], "actions_tab_url": None, "error": str(exc)}
 
 
-def _status_pill(status: str) -> str:
-    palette = {
-        "success":       ("#0d4a26", "#1DB954"),
-        "failure":       ("#3A1C1C", "#FFB4B4"),
-        "cancelled":     ("#2A2A2A", "#B3B3B3"),
-        "skipped":       ("#2A2A2A", "#B3B3B3"),
-        "pending":       ("#4A3A0D", "#FFD180"),
-        "no_action_yet": ("#1C2A3A", "#90C8FF"),
-    }
-    bg, fg = palette.get(status, ("#2A2A2A", "#B3B3B3"))
-    label = {"no_action_yet": "initial commit", "failure": "failed", "pending": "running"}.get(status, status)
-    return (
-        f'<span style="background:{bg};color:{fg};padding:2px 8px;'
-        f'border-radius:4px;font-size:11px;font-weight:600;">{label}</span>'
-    )
-
-
-def _relative(iso: str | None) -> str:
-    if not iso:
-        return "unknown"
-    try:
-        t = datetime.fromisoformat(iso.replace("Z", "+00:00"))
-    except Exception:                                             # noqa: BLE001
-        return iso
-    diff = (datetime.now(t.tzinfo) - t).total_seconds()
-    if diff < 60:   return f"{int(diff)}s ago"
-    if diff < 3600: return f"{int(diff // 60)}m ago"
-    if diff < 86400: return f"{int(diff // 3600)}h ago"
-    return f"{int(diff // 86400)}d ago"
+def _status_badge_html(status: str) -> str:
+    label = {
+        "no_action_yet": "initial commit",
+        "failure": "failed",
+        "pending": "running",
+        "success": "success",
+        "cancelled": "cancelled",
+        "skipped": "skipped",
+    }.get(status, status)
+    icon = {
+        "success": "✓", "failure": "✕", "pending": "●",
+        "cancelled": "✕", "skipped": "—", "no_action_yet": "○",
+    }.get(status, "●")
+    return f'<span class="status-badge status-{status}">{icon} {label}</span>'
 
 
 actions = load_action_runs()
-st.markdown("### 🔁 Weekly refresh history")
-st.caption(
-    "GitHub Actions run every Monday at 02:00 UTC. Each successful run commits "
-    "fresh data to the repo. Download the exact snapshot from any past run below."
+render_section_head(
+    "WEEKLY AUTOMATION",
+    "Recent GitHub Action runs",
+    "Each successful run commits fresh data to the repo. Download the exact data snapshot from any past run below.",
 )
 
 if actions.get("error"):
@@ -376,176 +654,194 @@ if actions.get("error"):
 
 runs = actions.get("runs", [])
 if not runs:
-    st.info(
-        "No runs found yet. After the first GitHub Action runs, completed snapshots "
-        "will appear here."
-    )
+    st.info("No runs found yet. After the first GitHub Action runs, completed snapshots will appear here.")
 else:
-    show_all = st.checkbox(
-        f"Show all {len(runs)} runs", value=False, key="show_all_runs",
-    ) if len(runs) > 1 else True
+    show_all = (
+        st.toggle(f"Show all {len(runs)} runs", value=False, key="show_all_runs")
+        if len(runs) > 1 else True
+    )
     visible = runs if show_all else runs[:1]
 
-    for r in visible:
-        pill = _status_pill(r.get("status", "pending"))
+    for idx, r in enumerate(visible):
+        badge = _status_badge_html(r.get("status", "pending"))
         title = r.get("title", "refresh")
         when = _relative(r.get("started_at"))
-        utc = (r.get("started_at") or "").replace("T", " ").replace("Z", "")
-        sha = (r.get("output_sha") or "")[:7]
+        utc = _format_utc(r.get("started_at"))
+        sha = (r.get("output_sha") or "unknown")[:7]
         run_link = (
             f'<a href="{r["html_url"]}" target="_blank" '
-            f'style="color:#9CA3AF;font-size:12px;text-decoration:none;">↗ view run</a>'
+            f'style="margin-left:auto;color:#9CA3AF;font-size:12px;">↗ view run</a>'
             if r.get("html_url") else ""
         )
-        st.markdown(
-            f"""<div style="border:1px solid #2F2F2F;border-radius:10px;
-                            background:#1C1C1C;padding:12px 14px;margin-bottom:8px;">
-                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                    {pill}
-                    <span style="font-weight:600;color:#FFFFFF;">{title}</span>
-                    <span style="color:#9CA3AF;font-size:12px;">{when}</span>
-                    <span style="color:#6B7280;font-size:12px;">{utc}</span>
-                    <span style="font-family:monospace;color:#6B7280;font-size:11px;">#{sha}</span>
-                    <span style="margin-left:auto;">{run_link}</span>
-                </div>
-            </div>""",
-            unsafe_allow_html=True,
-        )
-
         dl = r.get("downloads") or {}
+        dl_buttons = ""
         if dl:
-            cols = st.columns(4)
-            for col, (key, label) in zip(cols, [
+            dl_items = [
                 ("reviews_jsonl",     "📄 reviews.jsonl"),
                 ("metadata",          "🧾 metadata.json"),
                 ("canonical_answers", "🧠 canonical answers"),
                 ("seed_reviews",      "🌱 seed reviews"),
-            ]):
-                url = dl.get(key)
-                if url:
-                    col.markdown(
-                        f'<a href="{url}" target="_blank" download '
-                        f'style="display:inline-block;background:#1DB954;color:#000;'
-                        f'padding:6px 12px;border-radius:6px;font-weight:600;'
-                        f'font-size:12px;text-decoration:none;width:100%;text-align:center;">'
-                        f'⬇ {label}</a>',
-                        unsafe_allow_html=True,
-                    )
+            ]
+            dl_buttons = (
+                '<div style="margin-top:10px;">'
+                '<span style="color:#6b7280;font-size:11.5px;margin-right:6px;">Download data from this run:</span>'
+                + "".join(
+                    f'<a class="dl-btn" href="{dl[k]}" target="_blank" download>⬇ {lbl}</a>'
+                    for k, lbl in dl_items if dl.get(k)
+                )
+                + "</div>"
+            )
+
+        primary_cls = " primary" if idx == 0 else ""
+        st.markdown(
+            f"""<div class="run-row{primary_cls}">
+                <div class="run-line">
+                    {badge}
+                    <span class="run-title">{title}</span>
+                    <span class="run-meta">⏱ {when}</span>
+                    <span class="run-meta" style="display:none;">{utc}</span>
+                    <span class="run-sha">#{sha}</span>
+                    {run_link}
+                </div>
+                {dl_buttons}
+            </div>""",
+            unsafe_allow_html=True,
+        )
 
     if actions.get("actions_tab_url"):
-        st.caption(
-            f"[View all runs on GitHub →]({actions['actions_tab_url']})"
+        st.markdown(
+            f'<div style="margin-top:6px;font-size:11.5px;color:#6b7280;">'
+            f'<a href="{actions["actions_tab_url"]}" target="_blank">↗ view all runs on GitHub</a>'
+            f'</div>',
+            unsafe_allow_html=True,
         )
 
-st.markdown("---")
+# ---------------- The 6 canonical questions (main section, React-parity) ----------------
 
-# ---------------- Tabs ----------------
-
-tab_questions, tab_custom, tab_themes, tab_arch, tab_raw = st.tabs(
-    ["🧠 6 Canonical Questions", "💬 Ask Your Own", "🎯 Themes & Segments",
-     "🏗 Architecture", "📋 Raw Data"]
+render_section_head(
+    "PRE-COMPUTED RAG SYNTHESIS",
+    "The 6 canonical questions",
+    "Click a card to read the full synthesis and the supporting reviews.",
 )
 
-# ---- Tab: Canonical Questions ----
-with tab_questions:
-    st.subheader("Answers grounded in real user reviews (RAG)")
-    st.caption("Click any card to read the full synthesis and the supporting reviews.")
+answers = canon.get("answers", {})
 
-    answers = canon.get("answers", {})
+if "selected_canonical_id" not in st.session_state:
+    st.session_state["selected_canonical_id"] = None
+selected_id = st.session_state["selected_canonical_id"]
 
-    if "selected_canonical_id" not in st.session_state:
-        st.session_state["selected_canonical_id"] = None
-    selected_id = st.session_state["selected_canonical_id"]
-
-    cols = st.columns(3)
-    for idx, q in enumerate(CANONICAL_QUESTIONS):
-        a = answers.get(q.id)
-        is_selected = (selected_id == q.id)
-        card_class = "qcard qcard-selected" if is_selected else "qcard"
-        with cols[idx % 3]:
-            st.markdown(
-                f"""<div class="{card_class}">
-                    <h4 style="color:{SPOTIFY_GREEN};margin:0 0 8px 0;">Q{idx+1}</h4>
-                    <p style="margin:0 0 8px 0;font-weight:600;">{q.short}</p>
-                    <p style="color:{SPOTIFY_GRAY};font-size:13px;margin-bottom:10px;">{q.full}</p>
-                </div>""",
-                unsafe_allow_html=True,
-            )
-            if a is None:
-                st.button("Not computed yet", key=f"open_{q.id}", disabled=True,
-                          use_container_width=True)
-            else:
-                btn_label = "Showing this answer below ↓" if is_selected else "View answer & reviews →"
-                if st.button(btn_label, key=f"open_{q.id}", use_container_width=True,
-                             type="primary" if is_selected else "secondary"):
-                    st.session_state["selected_canonical_id"] = None if is_selected else q.id
-                    st.rerun()
-
-    st.markdown("---")
-
-    selected_id = st.session_state["selected_canonical_id"]
-    if not selected_id:
-        st.info("Click any card above to expand the synthesized answer with its supporting reviews.")
-    else:
-        a = answers.get(selected_id)
-        if not a:
-            st.warning("No precomputed answer for this question yet. Run `python -m src.pipeline.refresh` first.")
+grid_cols = st.columns(3, gap="small")
+for idx, q in enumerate(CANONICAL_QUESTIONS):
+    a = answers.get(q.id)
+    is_selected = (selected_id == q.id)
+    card_class = "qcard qcard-selected" if is_selected else "qcard"
+    with grid_cols[idx % 3]:
+        st.markdown(
+            f"""<div class="{card_class}">
+                <div class="qid">{q.id}</div>
+                <div class="qshort">{q.short}</div>
+                <div class="qfull">{q.full}</div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+        if a is None:
+            st.button("Not computed yet", key=f"open_{q.id}", disabled=True,
+                      use_container_width=True)
         else:
-            head_cols = st.columns([6, 1])
-            head_cols[0].markdown(f"### {a['question_full']}")
-            if head_cols[1].button("✕ Close", key="close_canonical", use_container_width=True):
-                st.session_state["selected_canonical_id"] = None
+            btn_label = "Showing below ↓" if is_selected else "View answer & reviews →"
+            if st.button(btn_label, key=f"open_{q.id}", use_container_width=True,
+                         type="primary" if is_selected else "secondary"):
+                st.session_state["selected_canonical_id"] = None if is_selected else q.id
                 st.rerun()
-            render_answer_with_reviews(
-                answer_text=a["answer"],
-                features=a.get("spotify_features_mentioned", []),
-                segments=a.get("user_segments_affected", []),
-                confidence=a.get("confidence", "medium"),
-                review_ids=a.get("review_ids", []),
-                df=df_reviews,
-                state_key=f"canon_{selected_id}",
-            )
 
-# ---- Tab: Custom Question ----
-with tab_custom:
-    st.subheader("Ask any question (scope-wrapped)")
-    st.caption(
-        "If your question is similar to one of the 6 canonical questions, the engine "
-        "answers it with retrieved review evidence. Otherwise it returns an out-of-scope message."
-    )
-    user_q = st.text_input(
-        "Your question",
-        placeholder="e.g. Why do casual listeners get worse recommendations over time?",
-    )
-
-    if user_q:
-        with st.spinner("Checking scope..."):
-            scope = evaluate_scope(user_q)
-
-        st.caption(
-            f"Scope decision: **{'in-scope' if scope.in_scope else 'out-of-scope'}** "
-            f"· similarity={scope.max_similarity:.2f} · nearest={scope.nearest_canonical_id} "
-            f"· path={scope.confidence}"
+selected_id = st.session_state["selected_canonical_id"]
+if selected_id:
+    a = answers.get(selected_id)
+    if not a:
+        st.warning("No precomputed answer for this question yet. Run `python -m src.pipeline.refresh` first.")
+    else:
+        st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
+        head_cols = st.columns([6, 1])
+        head_cols[0].markdown(f"#### {a['question_full']}")
+        if head_cols[1].button("✕ Close", key="close_canonical", use_container_width=True):
+            st.session_state["selected_canonical_id"] = None
+            st.rerun()
+        render_answer_with_reviews(
+            answer_text=a["answer"],
+            features=a.get("spotify_features_mentioned", []),
+            segments=a.get("user_segments_affected", []),
+            confidence=a.get("confidence", "medium"),
+            review_ids=a.get("review_ids", []),
+            df=df_reviews,
+            state_key=f"canon_{selected_id}",
         )
 
-        if not scope.in_scope:
-            st.markdown(f'<div class="scope-out">{OUT_OF_SCOPE_MESSAGE}</div>',
-                        unsafe_allow_html=True)
+# ---------------- Ask Your Own (main section, React-parity) ----------------
+
+render_section_head(
+    "IN-SCOPE ONLY · GROUNDED IN USER REVIEWS",
+    "Ask your own question",
+    "The scope wrapper accepts paraphrases of the 6 canonical questions and refuses everything else.",
+)
+
+user_q = st.text_input(
+    "",
+    placeholder="Ask anything about Spotify discovery, recommendations, or repetitive listening...",
+    label_visibility="collapsed",
+    key="custom_q_input",
+)
+
+sample_qs = [
+    "Why does Spotify keep recommending songs I already love?",
+    "How do regional listeners feel about Discover Weekly?",
+    "What do users say about the DJ feature?",
+]
+sample_cols = st.columns(len(sample_qs))
+for i, sq in enumerate(sample_qs):
+    if sample_cols[i].button(sq, key=f"sample_{i}", use_container_width=True):
+        st.session_state["custom_q_input"] = sq
+        st.rerun()
+
+active_q = st.session_state.get("custom_q_input") or user_q
+if active_q:
+    with st.spinner("Checking scope..."):
+        scope = evaluate_scope(active_q)
+
+    st.caption(
+        f"Scope decision: **{'in-scope' if scope.in_scope else 'out-of-scope'}** "
+        f"· similarity={scope.max_similarity:.2f} · nearest={scope.nearest_canonical_id} "
+        f"· path={scope.confidence}"
+    )
+
+    if not scope.in_scope:
+        st.markdown(f'<div class="scope-out"><strong>Out of scope.</strong> {OUT_OF_SCOPE_MESSAGE}</div>',
+                    unsafe_allow_html=True)
+    else:
+        with st.spinner("Retrieving evidence and synthesising..."):
+            ans = answer_question(active_q)
+        if ans is None:
+            st.error("Could not generate an answer. The vector index may be empty.")
         else:
-            with st.spinner("Retrieving evidence and synthesising..."):
-                ans = answer_question(user_q)
-            if ans is None:
-                st.error("Could not generate an answer. The vector index may be empty.")
-            else:
-                render_answer_with_reviews(
-                    answer_text=ans.answer.answer,
-                    features=ans.answer.spotify_features_mentioned,
-                    segments=ans.answer.user_segments_affected,
-                    confidence=ans.answer.confidence,
-                    review_ids=[r.id for r in ans.reviews],
-                    df=df_reviews,
-                    state_key=f"custom_{hash(user_q) % 100000}",
-                )
+            render_answer_with_reviews(
+                answer_text=ans.answer.answer,
+                features=ans.answer.spotify_features_mentioned,
+                segments=ans.answer.user_segments_affected,
+                confidence=ans.answer.confidence,
+                review_ids=[r.id for r in ans.reviews],
+                df=df_reviews,
+                state_key=f"custom_{hash(active_q) % 100000}",
+            )
+
+# ---------------- Tabs: Themes / Architecture / Raw Data ----------------
+
+render_section_head(
+    "DEEPER VIEWS",
+    "Themes, architecture, and raw data",
+    "Browse mention frequencies, the engine's architecture diagram, and the full filterable review table.",
+)
+tab_themes, tab_arch, tab_raw = st.tabs(
+    ["🎯 Themes & Segments", "🏗 Architecture", "📋 Raw Data"]
+)
 
 # ---- Tab: Themes & Segments ----
 with tab_themes:
@@ -677,3 +973,15 @@ with tab_raw:
             use_container_width=True,
             height=500,
         )
+
+# ---------------- Footer ----------------
+
+st.markdown(
+    """
+    <div class="app-footer">
+        <div>Powered by Groq (Llama-3.x) · Sentence-Transformers · ChromaDB · Streamlit</div>
+        <div>PM Capstone · Spotify Discovery Pain</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)

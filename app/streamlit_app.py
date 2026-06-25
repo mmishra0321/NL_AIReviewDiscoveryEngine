@@ -45,7 +45,7 @@ logging.basicConfig(level=logging.INFO)
 # ---------------- Page config + theme ----------------
 
 st.set_page_config(
-    page_title="Spotify Discovery Pain - AI Review Engine",
+    page_title="Spotify Discovery Pain · AI Review Engine",
     page_icon="🎧",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -489,7 +489,7 @@ with tab_questions:
 
 # ---- Tab: Custom Question ----
 with tab_custom:
-    st.subheader("Ask any question - scope-wrapped")
+    st.subheader("Ask any question (scope-wrapped)")
     st.caption(
         "If your question is similar to one of the 6 canonical questions, the engine "
         "answers it with retrieved review evidence. Otherwise it returns an out-of-scope message."
@@ -613,7 +613,7 @@ with tab_arch:
         f"""
 - **Grounded:** every answer cites the specific reviews it drew from.
   Click into any answer and read the verbatim user voice.
-- **Refreshable:** the Chroma index is upserted weekly by GitHub Actions -
+- **Refreshable:** the Chroma index is upserted weekly by GitHub Actions, so
   new reviews automatically shift answers.
 - **Bounded:** the scope wrapper prevents the LLM from inventing answers
   to questions this dataset can't support.
@@ -625,7 +625,7 @@ with tab_arch:
 
 # ---- Tab: Raw Data ----
 with tab_raw:
-    st.subheader(f"Raw reviews - {len(df_reviews):,} rows")
+    st.subheader(f"Raw reviews · {len(df_reviews):,} rows")
     if df_reviews.empty:
         st.info("No data yet. Run `python -m src.pipeline.refresh` first.")
     else:

@@ -56,7 +56,7 @@ function Header() {
           <Music className="w-4 h-4 text-brand" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-fg leading-tight">Spotify Discovery - AI Review Engine</div>
+          <div className="text-sm font-semibold text-fg leading-tight">Spotify Discovery · AI Review Engine</div>
           <div className="text-[11px] text-fg-subtle leading-tight">RAG over App Store · Play Store · YouTube</div>
         </div>
         <div className="ml-auto flex items-center gap-3 text-[12px]">
@@ -80,7 +80,7 @@ function Hero() {
       <div className="max-w-3xl">
         <div className="text-[11px] uppercase tracking-wider text-brand">PM Capstone · Spotify Growth</div>
         <h1 className="text-2xl md:text-3xl font-bold mt-1.5 text-fg leading-tight">
-          Why meaningful music discovery still fails - at scale, in users' own words.
+          Why meaningful music discovery still fails at scale, in users' own words.
         </h1>
         <p className="text-[14px] text-fg-muted mt-2 leading-relaxed">
           This engine scrapes, normalizes, classifies, embeds, and RAG-synthesizes thousands

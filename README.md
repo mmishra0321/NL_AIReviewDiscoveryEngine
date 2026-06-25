@@ -1,23 +1,23 @@
-# 01 — Spotify Discovery Pain · AI Review Discovery Engine
+# 01 - Spotify Discovery Pain · AI Review Discovery Engine
 
 > Part 1 of a 3-folder capstone PM project on Spotify music discovery.
 > An AI-native workflow that mines Spotify user feedback at scale to
-> surface why discovery feels broken — even with world-class recommendations.
+> surface why discovery feels broken - even with world-class recommendations.
 
 📁 **Sibling folders:**
-- [`../02-mvp/`](../02-mvp/) — the AI-native MVP (Sonar) that operationalises these insights
-- [`../03-research-and-deck/`](../03-research-and-deck/) — interviews, problem definition, and the final 10-slide deck
+- [`../02-mvp/`](../02-mvp/) - the AI-native MVP (Sonar) that operationalises these insights
+- [`../03-research-and-deck/`](../03-research-and-deck/) - interviews, problem definition, and the final 10-slide deck
 
 📄 **Read first:**
-- [`doc/problemStatement.md`](./doc/problemStatement.md) — full project brief + this engine's mandate
-- [`doc/architecture.md`](./doc/architecture.md) — detailed engine architecture (every component mapped to a file)
-- [`doc/deployment.md`](./doc/deployment.md) — how to deploy this to Streamlit Cloud + wire up GitHub Actions
+- [`doc/problemStatement.md`](./doc/problemStatement.md) - full project brief + this engine's mandate
+- [`doc/architecture.md`](./doc/architecture.md) - detailed engine architecture (every component mapped to a file)
+- [`doc/deployment.md`](./doc/deployment.md) - how to deploy this to Streamlit Cloud + wire up GitHub Actions
 
 ## Working hypothesis
 
 Spotify's algorithmic discovery (Discover Weekly, Release Radar, Daily Mixes) over-indexes
 on listening history and creates a filter bubble. Users who *want* to discover new music
-can't escape their past — especially across mood shifts, genre crossings, and language /
+can't escape their past - especially across mood shifts, genre crossings, and language /
 regional boundaries. Even discovery-motivated users end up replaying familiar tracks.
 
 This repo's review engine confirms or rejects this hypothesis with evidence from real users.
@@ -99,4 +99,4 @@ streamlit run app/streamlit_app.py
 ## Deploy
 
 Streamlit Cloud auto-deploys from `main`. The weekly GitHub Action commits new data,
-which triggers an automatic redeploy — keeping the live URL fresh.
+which triggers an automatic redeploy - keeping the live URL fresh.

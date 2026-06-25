@@ -1,4 +1,4 @@
-"""Scope wrapper — decides if a custom question is in-scope.
+"""Scope wrapper - decides if a custom question is in-scope.
 
 Hybrid:
 - Fast path: cosine similarity between user question and the 6 canonical questions
@@ -93,7 +93,7 @@ def evaluate_scope(question: str) -> ScopeResult:
 
 
 OUT_OF_SCOPE_MESSAGE = (
-    "This tool only answers questions about Spotify music discovery — why users "
+    "This tool only answers questions about Spotify music discovery - why users "
     "struggle to discover new music, frustrations with recommendations, listening "
     "behaviours they want, causes of repetitive listening, segment differences, "
     "and unmet needs. Try rephrasing toward one of those, or pick one of the 6 "

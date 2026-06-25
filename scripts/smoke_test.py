@@ -1,4 +1,4 @@
-"""Smoke test — verifies the stack is configured correctly end-to-end.
+"""Smoke test - verifies the stack is configured correctly end-to-end.
 
 Run after pasting GROQ_API_KEY into .env:
     python scripts/smoke_test.py

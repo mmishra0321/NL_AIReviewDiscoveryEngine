@@ -3,6 +3,7 @@ import { Music, ExternalLink } from "lucide-react";
 import { MetadataBar } from "@/components/MetadataBar";
 import { CanonicalGrid } from "@/components/CanonicalGrid";
 import { AskBox } from "@/components/AskBox";
+import { ActionsHistory } from "@/components/ActionsHistory";
 
 export default function App() {
   const [bump, setBump] = useState(0);                    // forces remount of grid after reload
@@ -13,6 +14,15 @@ export default function App() {
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
         <Hero />
         <MetadataBar onRefreshed={() => setBump((b) => b + 1)} />
+
+        <section className="space-y-3">
+          <SectionHeader
+            kicker="Weekly automation"
+            title="Recent GitHub Action runs"
+            subtitle="Each successful run commits fresh data to the repo. Download the exact data snapshot from any past run below."
+          />
+          <ActionsHistory />
+        </section>
 
         <section className="space-y-3">
           <SectionHeader
@@ -46,7 +56,7 @@ function Header() {
           <Music className="w-4 h-4 text-brand" />
         </div>
         <div>
-          <div className="text-sm font-semibold text-fg leading-tight">Spotify Discovery — AI Review Engine</div>
+          <div className="text-sm font-semibold text-fg leading-tight">Spotify Discovery - AI Review Engine</div>
           <div className="text-[11px] text-fg-subtle leading-tight">RAG over App Store · Play Store · YouTube</div>
         </div>
         <div className="ml-auto flex items-center gap-3 text-[12px]">
@@ -70,7 +80,7 @@ function Hero() {
       <div className="max-w-3xl">
         <div className="text-[11px] uppercase tracking-wider text-brand">PM Capstone · Spotify Growth</div>
         <h1 className="text-2xl md:text-3xl font-bold mt-1.5 text-fg leading-tight">
-          Why meaningful music discovery still fails — at scale, in users' own words.
+          Why meaningful music discovery still fails - at scale, in users' own words.
         </h1>
         <p className="text-[14px] text-fg-muted mt-2 leading-relaxed">
           This engine scrapes, normalizes, classifies, embeds, and RAG-synthesizes thousands

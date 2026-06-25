@@ -27,8 +27,8 @@ The weekly GitHub Action needs the same `GROQ_API_KEY` you set in `.env`.
 1. Open: https://github.com/mmishra0321/NL_AIReviewDiscoveryEngine/actions
 2. Click **Weekly Review Refresh** in the left sidebar
 3. Click **Run workflow** → leave defaults (or check "seed_only=true" for first test) → **Run workflow**
-4. Watch the run — should complete in 3-7 minutes
-5. After it succeeds, check the `main` branch — `data/metadata.json` should show a fresh `last_refresh_utc`
+4. Watch the run - should complete in 3-7 minutes
+5. After it succeeds, check the `main` branch - `data/metadata.json` should show a fresh `last_refresh_utc`
 
 ## 2. Streamlit Community Cloud deployment
 
@@ -79,7 +79,7 @@ auto-refresh loop:
 To verify: after the first manual Action run, refresh your Streamlit URL.
 The "Last refresh" pill in the header should show the new timestamp.
 
-## 5. Known constraints (free tier) — and our guardrails
+## 5. Known constraints (free tier) - and our guardrails
 
 | Component | Free-tier limit | Our guardrail |
 |---|---|---|
@@ -92,7 +92,7 @@ The "Last refresh" pill in the header should show the new timestamp.
 
 > **Why the 1000-review cap?** Without it, a 5,000-review refresh would burn
 > through Groq's free tier in a single run. With the cap + per-source budget +
-> throttle, a full refresh now uses ~60k tokens of the 1M daily quota (6%) —
+> throttle, a full refresh now uses ~60k tokens of the 1M daily quota (6%) -
 > leaving plenty of headroom for live `/api/ask` calls and emergency reruns.
 
 If you ever hit the Streamlit Cloud memory limit, the first culprit will be

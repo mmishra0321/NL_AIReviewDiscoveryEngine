@@ -1,4 +1,4 @@
-"""RAG retrieval — pull the top-K most relevant reviews from Chroma for a query.
+"""RAG retrieval - pull the top-K most relevant reviews from Chroma for a query.
 
 Uses similarity search + MMR (Maximal Marginal Relevance) re-ranking so we
 don't feed the LLM 15 near-duplicate reviews. MMR balances similarity to the

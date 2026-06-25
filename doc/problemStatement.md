@@ -1,4 +1,4 @@
-# Problem Statement — Spotify Discovery Pain
+# Problem Statement - Spotify Discovery Pain
 
 > Capstone PM project, Growth Team at Spotify. This document is the single
 > source of truth for what we're solving, who we're solving it for, and how
@@ -11,7 +11,7 @@
 Spotify has world-class technology and ~600M+ users globally. It has shipped
 one of the most sophisticated music recommendation systems in tech:
 Discover Weekly, Release Radar, Daily Mix, Daylist, Smart Shuffle, DJ,
-AI Playlist, Niche Mixes, Blend — all powered by collaborative filtering,
+AI Playlist, Niche Mixes, Blend - all powered by collaborative filtering,
 content embeddings, and (more recently) generative AI.
 
 **And yet:** a significant percentage of listening still comes from
@@ -35,7 +35,7 @@ voice, validate it with primary research, and ship an AI-native MVP.
 > - Recommendations recycle the same artists across surfaces (Discover Weekly,
 >   Daily Mix, Release Radar, Daylist all draw from the same taste profile).
 > - Negative signals (skips, low-rating, manual replacement) are under-weighted.
-> - There is no user-controllable "discovery intensity" — every recommendation
+> - There is no user-controllable "discovery intensity" - every recommendation
 >   is tuned for safety and engagement, not novelty.
 > - Regional, multilingual, niche, and emerging-artist catalogs exist in the
 >   library but are systematically under-exposed in personalised surfaces.
@@ -48,7 +48,7 @@ forums.
 
 ---
 
-## 3. Project Brief — The 4 Mandated Parts
+## 3. Project Brief - The 4 Mandated Parts
 
 ### Part 1: Build an AI-Powered Review Discovery Engine
 
@@ -61,7 +61,7 @@ Build an AI system that analyses user feedback at scale.
 - Community forums (Spotify Community)
 - Social media conversations (best-effort)
 
-**Outputs:** The engine must answer the 6 canonical questions below — and only
+**Outputs:** The engine must answer the 6 canonical questions below - and only
 those (with a graceful out-of-scope refusal for anything else). Each answer
 must be grounded in retrieved review evidence (RAG), with the supporting
 reviews displayed beneath the answer.
@@ -79,14 +79,14 @@ reviews displayed beneath the answer.
 
 **Functional requirements (from the user's expanded brief):**
 
-1. **Groq LLM** as the primary LLM (free tier — Llama 3.3 70B Versatile).
+1. **Groq LLM** as the primary LLM (free tier - Llama 3.3 70B Versatile).
 2. **RAG** for both classifying scraped data under themes AND answering questions.
 3. **Auto-answer the 6 canonical questions** out of the box (precomputed at refresh).
 4. **Scope wrapper**: a user-submitted custom question that is similar to the 6
    is routed to RAG; anything else returns a friendly "Out of scope" message.
 5. **Per-answer review evidence**: 5 reviews shown initially, "View More" /
    shimmer to load the next 5.
-6. **Curated seed reviews** supplement scraped data where the scrape is thin —
+6. **Curated seed reviews** supplement scraped data where the scrape is thin -
    transparently flagged in the UI with a `🌱` badge so credibility holds.
 7. **GitHub Actions weekly refresh**: re-scrape → normalize → dedupe →
    discovery-relevance filter → embed → upsert into Chroma → re-categorize →
@@ -101,7 +101,7 @@ reviews displayed beneath the answer.
 
 ### Part 2: Validate the Opportunity Through User Research
 
-5–6 user interviews with respondents from the segment surfaced by Phase 1.
+5-6 user interviews with respondents from the segment surfaced by Phase 1.
 Outputs: interview guide, recordings/notes, synthesis (affinity map / theme
 table). Phase 1's segment analysis (Q5) determines who we recruit.
 
@@ -117,7 +117,7 @@ This becomes slides 3 & 4 of the deck.
 
 ### Part 4: Build an AI-Native MVP
 
-Design and build a functional MVP — a prototype of a new feature inside
+Design and build a functional MVP - a prototype of a new feature inside
 Spotify, with the AI doing the real work behind a mocked Spotify UI.
 
 **Deploy to production** (Hugging Face Spaces or Streamlit Cloud, public URL).
@@ -136,7 +136,7 @@ which means the deck must explain:
 
 ---
 
-## 4. Target User Segments (Hypothesis — to be validated in Phase 2)
+## 4. Target User Segments (Hypothesis - to be validated in Phase 2)
 
 Based on Phase 1 review analysis, we expect the following segments to surface.
 The interview cohort will be drawn from the top segment.
@@ -171,7 +171,7 @@ Naming rule: `NL Spotify.pdf` (no fellow name anywhere in the slide deck).
 | Constraint | Detail |
 |---|---|
 | Timeline | ≤7 calendar days end-to-end |
-| Budget | $0 — every tool in the stack is free-tier |
+| Budget | $0 - every tool in the stack is free-tier |
 | Stack | Python (code-based, not no-code) |
 | LLM | Groq only (free tier) |
 | Embeddings | Local sentence-transformers (no API quota) |
@@ -199,7 +199,7 @@ demands:
    is a meta-request about the recommender itself. Classical recommenders
    have no API for that.
 2. **Explain themselves.** Black-box recommendations make users distrust
-   suggestions. Reviews repeatedly ask for "why this song?" — LLMs can answer.
+   suggestions. Reviews repeatedly ask for "why this song?" - LLMs can answer.
 3. **Handle context naturally.** "Recommend me music to study to as a
    bilingual Indian student" is a 3-axis ask (function × language × identity).
    Tag-based systems flatten this. LLMs reason across axes.
@@ -207,7 +207,7 @@ demands:
    training data mix; with LLMs we can expose an explicit dial that users
    control turn-by-turn.
 
-The MVP (Phase 4–5) operationalises one or more of these.
+The MVP (Phase 4-5) operationalises one or more of these.
 
 ---
 
@@ -233,7 +233,7 @@ Project succeeds if:
 - [ ] The scope wrapper correctly routes ≥90% of test queries.
 - [ ] The GitHub Action runs weekly and updates Chroma + metadata.
 - [ ] The 10-slide deck tells a coherent story grounded in the engine's output
-      and the 5–6 interviews.
+      and the 5-6 interviews.
 - [ ] The MVP is deployed at a public URL and demonstrates an AI-native
       discovery interaction a classical recommender could not.
 - [ ] Both live URLs (workflow + MVP) are clickable in the final deck.

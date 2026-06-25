@@ -146,7 +146,7 @@ def default_client() -> GroqClient:
 
 
 def fast_client() -> GroqClient:
-    """Smaller, faster model — for high-volume classification."""
+    """Smaller, faster model - for high-volume classification."""
     global _fast_client
     if _fast_client is None:
         _fast_client = GroqClient(model=GROQ_MODEL_FAST)

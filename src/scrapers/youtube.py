@@ -37,7 +37,7 @@ def _search_videos(query: str, max_results: int) -> list[dict]:
     try:
         from yt_dlp import YoutubeDL                                # noqa: WPS433
     except ImportError:
-        log.warning("yt-dlp not installed — YouTube search disabled.")
+        log.warning("yt-dlp not installed - YouTube search disabled.")
         return []
 
     opts = {
@@ -74,7 +74,7 @@ def _download_comments(video_url: str, max_per_video: int) -> list[dict[str, Any
             YoutubeCommentDownloader,
         )
     except ImportError:
-        log.warning("youtube-comment-downloader not installed — skipping.")
+        log.warning("youtube-comment-downloader not installed - skipping.")
         return []
 
     out: list[dict] = []

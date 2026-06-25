@@ -187,7 +187,7 @@ def _apply_source_budget(reviews: list[Review]) -> list[Review]:
     for src, lst in by_source.items():
         quota = REVIEW_BUDGET_BY_SOURCE.get(src, 0)
         if quota <= 0:
-            # No quota configured for this source — keep nothing by default
+            # No quota configured for this source - keep nothing by default
             continue
         kept = lst[:quota]
         out.extend(kept)

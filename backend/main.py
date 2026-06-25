@@ -1,4 +1,4 @@
-"""FastAPI app — the public surface consumed by the React frontend.
+"""FastAPI app - the public surface consumed by the React frontend.
 
 Run locally:
     uvicorn backend.main:app --reload --port 8000
@@ -22,7 +22,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from backend import export, services                              # noqa: E402
+from backend import export, github_actions, services              # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,7 +31,7 @@ logging.basicConfig(
 log = logging.getLogger("backend")
 
 app = FastAPI(
-    title="Spotify Discovery — AI Review Engine API",
+    title="Spotify Discovery - AI Review Engine API",
     version="1.0.0",
     description=(
         "REST API powering the React review-discovery dashboard. Wraps the "
@@ -134,6 +134,15 @@ def list_reviews(
         source=source, q=q, canonical_tag=canonical_tag,
         relevant_only=relevant_only, page=page, size=size,
     )
+
+
+# ----- GitHub Actions history ------------------------------
+
+@app.get("/api/actions", tags=["actions"])
+def list_actions(limit: int = Query(10, ge=1, le=30)) -> dict:
+    """Recent runs of the weekly refresh workflow, with per-run download
+    URLs pinned to the commit each run produced. Cached server-side for 5 min."""
+    return github_actions.list_action_runs(limit=limit)
 
 
 # ----- Excel export ----------------------------------------

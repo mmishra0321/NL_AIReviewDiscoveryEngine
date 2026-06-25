@@ -1,4 +1,4 @@
-"""Pydantic schemas — the canonical data shapes across the pipeline."""
+"""Pydantic schemas - the canonical data shapes across the pipeline."""
 from __future__ import annotations
 
 from datetime import datetime

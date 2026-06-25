@@ -1,6 +1,7 @@
 // Typed API client. In dev, vite proxies /api -> :8000 (see vite.config.ts).
 // In production, set VITE_API_BASE to the deployed backend origin.
 import type {
+  ActionsResponse,
   AskResponse,
   CanonicalDetail,
   CanonicalList,
@@ -35,5 +36,6 @@ export const api = {
   canonical:        () => jget<CanonicalList>("/api/canonical"),
   canonicalDetail:  (qid: string) => jget<CanonicalDetail>(`/api/canonical/${encodeURIComponent(qid)}`),
   ask:              (question: string) => jpost<AskResponse>("/api/ask", { question }),
+  actions:          (limit = 10) => jget<ActionsResponse>(`/api/actions?limit=${limit}`),
   exportUrl:        () => `${BASE}/api/export.xlsx`,
 };

@@ -27,7 +27,7 @@ CANONICAL_LIST_PROMPT = "\n".join(
     f"- {q.id}: {q.short}" for q in CANONICAL_QUESTIONS
 )
 
-# Compact system prompt — every token here multiplies by N batches. Aim ~350 tok.
+# Compact system prompt - every token here multiplies by N batches. Aim ~350 tok.
 SYSTEM_PROMPT = f"""Classify Spotify reviews for music-DISCOVERY relevance.
 
 is_relevant=TRUE iff review touches: music discovery, recommendations, repetitive
@@ -35,7 +35,7 @@ listening, exploring new artists/genres, or Spotify discovery surfaces (Discover
 Weekly, Daily Mix, Daylist, Release Radar, DJ, AI Playlist, Smart Shuffle, Blend,
 Niche Mixes, Radio, Search, Home).
 is_relevant=FALSE for: login, billing, audio quality, podcasts/audiobooks,
-account, ads, sync — unless they directly affect discovery.
+account, ads, sync - unless they directly affect discovery.
 
 canonical_tags: zero or more of:
 {CANONICAL_LIST_PROMPT}

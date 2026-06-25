@@ -32,7 +32,7 @@ REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET", "")
 REDDIT_USER_AGENT = os.getenv("REDDIT_USER_AGENT", "spotify-discovery-pm/0.1")
 
 # --- Models ---
-# Groq Llama 3.3 70B Versatile — high quality, fast, generous free tier
+# Groq Llama 3.3 70B Versatile - high quality, fast, generous free tier
 GROQ_MODEL = "llama-3.3-70b-versatile"
 # Smaller / cheaper for high-volume relevance classification
 GROQ_MODEL_FAST = "llama-3.1-8b-instant"
@@ -51,12 +51,12 @@ RAG_DISPLAY_PAGE = 5                 # reviews shown per UI page
 # llama-3.1-8b-instant, ~12k on llama-3.3-70b-versatile).
 # Each relevance-classify call burns ~1500-2000 tokens, so the effective RPM
 # we can sustain is ~4-6/min, i.e. ~12-15s between calls. We throttle to 13s
-# so Groq never has to 429 us — cleaner logs, predictable pace, same throughput.
+# so Groq never has to 429 us - cleaner logs, predictable pace, same throughput.
 GROQ_MIN_INTERVAL_SECONDS = 13.0
 
 # Hard ceiling on how many normalized reviews enter the relevance classifier
 # (and therefore get embedded + indexed). Keeps Groq token usage bounded.
-# Set to 1000 by default — gives 100 batches × ~500 tok = ~50k tok per refresh,
+# Set to 1000 by default - gives 100 batches × ~500 tok = ~50k tok per refresh,
 # well under daily limits.
 MAX_REVIEWS_TO_CLASSIFY = 1000
 
@@ -80,3 +80,10 @@ SCOPE_OUT_THRESHOLD = 0.30           # <  → out-of-scope (fast path)
 
 # Chroma collection
 CHROMA_COLLECTION = "spotify_reviews"
+
+# --- GitHub repo (used by /api/actions to surface workflow history) ---
+# Override via env if you fork. Defaults match this repo.
+GITHUB_OWNER = os.getenv("GITHUB_OWNER", "mmishra0321")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "NL_AIReviewDiscoveryEngine")
+GITHUB_BOT_AUTHOR = os.getenv("GITHUB_BOT_AUTHOR", "spotify-review-bot")
+GITHUB_WORKFLOW_FILE = os.getenv("GITHUB_WORKFLOW_FILE", "refresh.yml")

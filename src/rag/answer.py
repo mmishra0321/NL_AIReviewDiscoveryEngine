@@ -1,4 +1,4 @@
-"""RAG answer generation — assemble retrieved reviews + question + lexicon
+"""RAG answer generation - assemble retrieved reviews + question + lexicon
 into a strict prompt and ask Groq for a structured synthesis.
 """
 from __future__ import annotations

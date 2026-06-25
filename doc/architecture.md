@@ -1,8 +1,8 @@
-# Architecture — AI Review Discovery Engine (Part 1)
+# Architecture - AI Review Discovery Engine (Part 1)
 
 > Companion to [`problemStatement.md`](./problemStatement.md). Every component
 > below maps to a concrete file in this repo and to one of the 11 functional
-> requirements (R1–R11) in the brief.
+> requirements (R1-R11) in the brief.
 
 ---
 
@@ -63,7 +63,7 @@ flowchart TB
 
 ## 2. Build Phases (Phase-by-Phase Plan Architecture)
 
-The engine was built in **8 internal phases (E0 – E7)**. Phases E0–E6 are
+The engine was built in **8 internal phases (E0 - E7)**. Phases E0-E6 are
 complete; E7 (production deploy) waits for the GitHub push.
 
 ```mermaid
@@ -79,13 +79,13 @@ flowchart LR
     style E7 fill:#2D5016,stroke:#1DB954,color:#fff
 ```
 
-This phase chain is *strictly sequential* — each phase consumes the
-previous phase's output. Total build time across E0–E6: ~13 hours of
+This phase chain is *strictly sequential* - each phase consumes the
+previous phase's output. Total build time across E0-E6: ~13 hours of
 focused work, which collapsed into a single intense build day.
 
 ---
 
-### E0 — Scaffold (config, schema, Groq client, canonicals, lexicon)
+### E0 - Scaffold (config, schema, Groq client, canonicals, lexicon)
 
 | Field | Value |
 |---|---|
@@ -99,7 +99,7 @@ focused work, which collapsed into a single intense build day.
 
 ---
 
-### E1 — Data Ingestion (scrapers + curated seed reviews)
+### E1 - Data Ingestion (scrapers + curated seed reviews)
 
 | Field | Value |
 |---|---|
@@ -123,7 +123,7 @@ flowchart LR
 
 ---
 
-### E2 — Normalization, Dedupe & Discovery-Relevance Filtering
+### E2 - Normalization, Dedupe & Discovery-Relevance Filtering
 
 | Field | Value |
 |---|---|
@@ -150,7 +150,7 @@ flowchart LR
 
 ---
 
-### E3 — Embeddings & Vector Indexing
+### E3 - Embeddings & Vector Indexing
 
 | Field | Value |
 |---|---|
@@ -177,7 +177,7 @@ flowchart LR
 
 ---
 
-### E4 — RAG System (Scope · Retrieve · Answer · Precompute)
+### E4 - RAG System (Scope · Retrieve · Answer · Precompute)
 
 | Field | Value |
 |---|---|
@@ -211,11 +211,11 @@ flowchart TB
 
 ---
 
-### E5 — Streamlit Dashboard UI
+### E5 - Streamlit Dashboard UI
 
 | Field | Value |
 |---|---|
-| **Objective** | Render every requirement (R1–R11) as a tab/widget a human can interact with |
+| **Objective** | Render every requirement (R1-R11) as a tab/widget a human can interact with |
 | **Duration** | ~3 hours · ✅ Done |
 | **Inputs** | `metadata.json` + `canonical_answers.json` + `reviews.jsonl` + ChromaDB |
 | **Outputs** | A 5-tab dashboard with Spotify-dark theme, metadata header, Excel downloads, paginated review evidence, scope-wrapped custom question box |
@@ -238,7 +238,7 @@ flowchart LR
 
 ---
 
-### E6 — CI/CD (GitHub Actions weekly refresh)
+### E6 - CI/CD (GitHub Actions weekly refresh)
 
 | Field | Value |
 |---|---|
@@ -267,7 +267,7 @@ flowchart LR
 
 ---
 
-### E7 — Production Deployment
+### E7 - Production Deployment
 
 | Field | Value |
 |---|---|
@@ -309,7 +309,7 @@ flowchart LR
     class E7 pending
 ```
 
-Note that **E5 (UI) and E6 (CI) are parallelisable after E4** — they don't
+Note that **E5 (UI) and E6 (CI) are parallelisable after E4** - they don't
 depend on each other. Both must complete before E7 (deploy).
 
 ---
@@ -332,7 +332,7 @@ Every component below lists: **what it does · file · inputs · outputs · why 
 #### 2.1.2 Play Store scraper
 - **File:** `src/scrapers/playstore.py`
 - **Mechanism:** `google-play-scraper` (active OSS, no key)
-- **Storefronts:** `us`, `gb`, `in/en`, `in/hi`, `de`, `br` · 100–300 reviews each
+- **Storefronts:** `us`, `gb`, `in/en`, `in/hi`, `de`, `br` · 100-300 reviews each
 - **Outputs:** same shape as App Store
 - **Why:** Most mature scraper in the ecosystem; supports multi-locale; no auth.
 
@@ -346,7 +346,7 @@ Every component below lists: **what it does · file · inputs · outputs · why 
 
 - **File:** `src/pipeline/normalize.py`
 - **Functions:** `normalize_record(raw, source) → Review`, `merge_and_dedupe(reviews)`, `write_canonical_store(reviews)`
-- **Stable ID:** `sha256(source + ":" + source_id)[:16]` — same review across re-scrapes produces the same ID → upserts are idempotent
+- **Stable ID:** `sha256(source + ":" + source_id)[:16]` - same review across re-scrapes produces the same ID → upserts are idempotent
 - **Schema:** `src/schema.py` defines `Review` (Pydantic), including derived fields populated downstream: `is_relevant`, `canonical_tags`, `features_mentioned`, `user_segments`
 - **Why JSONL:** Streaming-friendly, line-diff-friendly in git, no parquet/columnar dependency for tiny scale.
 
@@ -356,8 +356,8 @@ Every component below lists: **what it does · file · inputs · outputs · why 
 - **Model:** Groq Llama 3.1 8B Instant (cheap + fast for high-volume classification)
 - **Prompting:** System prompt embeds the 6 canonical questions + the full Spotify feature lexicon; instructs the model to output strict JSON for a batch of 10 reviews per call
 - **Why batched:** Cuts per-review API cost ~10×; fewer rate-limit hits
-- **Output per review:** `is_relevant` (bool), `reason` (one clause), `canonical_tags` (subset of Q1–Q6)
-- **Rate-limit handling:** `tenacity` retry with exponential backoff (multiplier=2, min=2s, max=30s, 5 attempts) — verified working: actual run hit Groq 429s and auto-recovered
+- **Output per review:** `is_relevant` (bool), `reason` (one clause), `canonical_tags` (subset of Q1-Q6)
+- **Rate-limit handling:** `tenacity` retry with exponential backoff (multiplier=2, min=2s, max=30s, 5 attempts) - verified working: actual run hit Groq 429s and auto-recovered
 
 ```mermaid
 sequenceDiagram
@@ -386,11 +386,11 @@ sequenceDiagram
 - **Normalisation:** `normalize_embeddings=True` → cosine similarity = dot product, simpler downstream math
 - **Cached:** `@lru_cache` so the model loads once per process
 
-### 2.5 Vector store — ChromaDB
+### 2.5 Vector store - ChromaDB
 
 - **Persistence:** `data/chroma_db/` (committed to repo)
 - **Why committed:** Streamlit Cloud has no persistent disk between deploys; baking the index into the repo means every redeploy is zero-setup
-- **Size budget:** ~10–20 MB for 5k reviews × 384-dim float32 → well below git's 100 MB warning
+- **Size budget:** ~10-20 MB for 5k reviews × 384-dim float32 → well below git's 100 MB warning
 - **Collection name:** `spotify_reviews`
 - **Metadata fields:** `source`, `rating`, `date`, `url`, `canonical_tags` (CSV), `features` (CSV), `author`
 - **Upsert semantics:** stable review IDs ensure weekly refreshes update existing rows, never duplicate
@@ -405,9 +405,9 @@ sequenceDiagram
 ### 2.7 RAG retrieval
 
 - **File:** `src/rag/retrieve.py`
-- **Step 1 — Initial similarity:** Chroma's HNSW cosine search retrieves top-25 (`RAG_RETRIEVE_K`)
-- **Step 2 — Optional canonical filter:** When called from `precompute.py` with `filter_canonical=Q1_struggle`, only reviews tagged with that question are considered
-- **Step 3 — MMR re-rank:** Greedy Maximal Marginal Relevance with λ=0.7 reduces near-duplicates to a final top-15 (`RAG_TOP_K`)
+- **Step 1 - Initial similarity:** Chroma's HNSW cosine search retrieves top-25 (`RAG_RETRIEVE_K`)
+- **Step 2 - Optional canonical filter:** When called from `precompute.py` with `filter_canonical=Q1_struggle`, only reviews tagged with that question are considered
+- **Step 3 - MMR re-rank:** Greedy Maximal Marginal Relevance with λ=0.7 reduces near-duplicates to a final top-15 (`RAG_TOP_K`)
 - **Why MMR:** Without it, the LLM sees 15 reviews that all say roughly the same thing; with it, the LLM sees 15 *diverse* reviews from the same theme → richer synthesis
 
 ```mermaid
@@ -430,9 +430,9 @@ flowchart LR
 - **Output schema (Pydantic):** `answer`, `spotify_features_mentioned`, `user_segments_affected`, `supporting_review_ids`, `confidence` (high/med/low)
 - **Confidence rubric (in prompt):**
   - **high:** 8+ reviews directly support, multiple sources/segments agree
-  - **medium:** 4–7 reviews support, some divergence
+  - **medium:** 4-7 reviews support, some divergence
   - **low:** <4 reviews support OR heavy disagreement
-- **Fallback:** If LLM returns invalid JSON, we fall back to a "Top relevant reviews retrieved — please read them" stub so the UI never empties
+- **Fallback:** If LLM returns invalid JSON, we fall back to a "Top relevant reviews retrieved - please read them" stub so the UI never empties
 
 ### 2.9 Scope wrapper (the "no-go for off-topic" guardrail)
 
@@ -456,9 +456,9 @@ flowchart TD
     OUTL --> MSG
 ```
 
-- **Why hybrid:** Fast-path decides ~95% of queries with **zero LLM calls** (verified during smoke test: in-scope sim=0.75, out-of-scope sim=0.04). The LLM only escalates on genuinely borderline queries (e.g. "how does Spotify decide what to show me?" — could be discovery, could be UX).
+- **Why hybrid:** Fast-path decides ~95% of queries with **zero LLM calls** (verified during smoke test: in-scope sim=0.75, out-of-scope sim=0.04). The LLM only escalates on genuinely borderline queries (e.g. "how does Spotify decide what to show me?" - could be discovery, could be UX).
 - **Thresholds calibration:** `SCOPE_IN_THRESHOLD = 0.55`, `SCOPE_OUT_THRESHOLD = 0.30` (in `src/config.py`)
-- **Out-of-scope copy:** `OUT_OF_SCOPE_MESSAGE` in `scope.py` — friendly, redirects to the 6 questions
+- **Out-of-scope copy:** `OUT_OF_SCOPE_MESSAGE` in `scope.py` - friendly, redirects to the 6 questions
 
 ### 2.10 Pre-compute layer
 
@@ -472,12 +472,12 @@ flowchart TD
 - **File:** `app/streamlit_app.py`
 - **Theme:** Spotify dark (green `#1DB954` on black `#191414`) via inline CSS + `.streamlit/config.toml`
 - **5 tabs:**
-  1. **6 Canonical Questions** — card grid + expanded view with paginated evidence (5 at a time, "View More")
-  2. **Ask Your Own** — scope-wrapped custom question box
-  3. **Themes & Segments** — bar charts of feature mentions, canonical distribution, source mix
-  4. **Architecture** — text-art diagram (= the 1-slider for the deck)
-  5. **Raw Data** — searchable, filterable table; Excel download
-- **Excel export:** `pandas.to_excel` with `openpyxl` — two buttons (all reviews / relevant only)
+  1. **6 Canonical Questions** - card grid + expanded view with paginated evidence (5 at a time, "View More")
+  2. **Ask Your Own** - scope-wrapped custom question box
+  3. **Themes & Segments** - bar charts of feature mentions, canonical distribution, source mix
+  4. **Architecture** - text-art diagram (= the 1-slider for the deck)
+  5. **Raw Data** - searchable, filterable table; Excel download
+- **Excel export:** `pandas.to_excel` with `openpyxl` - two buttons (all reviews / relevant only)
 - **Metadata header:** Pills showing last refresh, total normalized, relevant count, Chroma size
 - **Caching:** `@st.cache_data(ttl=300)` on data loaders so the UI is snappy
 
@@ -556,17 +556,17 @@ sequenceDiagram
 
 | Requirement | Files |
 |---|---|
-| R1 — Groq as primary LLM | `src/pipeline/groq_client.py`, `src/config.py` |
-| R2 — RAG for classification + answering | `src/pipeline/relevance.py`, `src/rag/retrieve.py`, `src/rag/answer.py` |
-| R3 — Auto-answer 6 canonical questions | `src/canonical.py`, `src/rag/precompute.py`, `data/insights/canonical_answers.json` |
-| R4 — Scope wrapper (out-of-scope refusal) | `src/rag/scope.py` |
-| R5 — Per-answer review evidence, 5+View More | `app/streamlit_app.py` (`render_answer_with_reviews`) |
-| R6 — Curated seed reviews with transparency | `data/seed/seed_reviews.jsonl`, UI 🌱 badge |
-| R7 — GitHub Actions weekly refresh | `.github/workflows/refresh.yml`, `src/pipeline/refresh.py` |
-| R8 — Metadata header (counts, dates) | `data/metadata.json`, `app/streamlit_app.py` header |
-| R9 — Excel export | `app/streamlit_app.py` `st.download_button` + `openpyxl` |
-| R10 — Filter to relevant only, then categorize | `src/pipeline/relevance.py` + canonical tags |
-| R11 — Spotify-specific lexicon in prompts | `src/lexicon.py` + injected into every system prompt |
+| R1 - Groq as primary LLM | `src/pipeline/groq_client.py`, `src/config.py` |
+| R2 - RAG for classification + answering | `src/pipeline/relevance.py`, `src/rag/retrieve.py`, `src/rag/answer.py` |
+| R3 - Auto-answer 6 canonical questions | `src/canonical.py`, `src/rag/precompute.py`, `data/insights/canonical_answers.json` |
+| R4 - Scope wrapper (out-of-scope refusal) | `src/rag/scope.py` |
+| R5 - Per-answer review evidence, 5+View More | `app/streamlit_app.py` (`render_answer_with_reviews`) |
+| R6 - Curated seed reviews with transparency | `data/seed/seed_reviews.jsonl`, UI 🌱 badge |
+| R7 - GitHub Actions weekly refresh | `.github/workflows/refresh.yml`, `src/pipeline/refresh.py` |
+| R8 - Metadata header (counts, dates) | `data/metadata.json`, `app/streamlit_app.py` header |
+| R9 - Excel export | `app/streamlit_app.py` `st.download_button` + `openpyxl` |
+| R10 - Filter to relevant only, then categorize | `src/pipeline/relevance.py` + canonical tags |
+| R11 - Spotify-specific lexicon in prompts | `src/lexicon.py` + injected into every system prompt |
 
 ---
 
@@ -574,14 +574,14 @@ sequenceDiagram
 
 | Decision | Alternative considered | Why we chose this |
 |---|---|---|
-| Two Groq models: 8B (classify) + 70B (synthesise) | 70B for everything | Cost & rate-limit math — classification is per-review (high volume), synthesis is per-question (6 calls). 8B is 10× cheaper. |
+| Two Groq models: 8B (classify) + 70B (synthesise) | 70B for everything | Cost & rate-limit math - classification is per-review (high volume), synthesis is per-question (6 calls). 8B is 10× cheaper. |
 | Local sentence-transformers, not Groq/OpenAI embeddings | API embeddings | No rate limit, no quota burn, deterministic across deploys |
 | ChromaDB committed to repo | External hosted vector DB | Free-tier-friendly; redeploys are stateless |
-| Stable hash IDs | Auto-increment | Idempotent re-scrapes — same review never duplicates |
+| Stable hash IDs | Auto-increment | Idempotent re-scrapes - same review never duplicates |
 | Hybrid scope wrapper | LLM-only or cosine-only | 95% queries decided without LLM; LLM only for genuinely borderline (saves quota + latency) |
 | Pre-computed canonical answers | Live LLM on every card | Dashboard loads instantly; Groq calls happen once per refresh, not per visitor |
 | Curated seed reviews flagged in UI | Hidden / unflagged | Credibility: a reviewer who probes the data finds full transparency |
-| Per-tab structure in Streamlit | Single long scroll | Cognitive load — each tab does one job well |
+| Per-tab structure in Streamlit | Single long scroll | Cognitive load - each tab does one job well |
 | Multi-locale scraping (US + UK + IN + DE + BR) | US-only | Surfaces regional/multilingual pain points that English-only would miss |
 
 ---
@@ -601,7 +601,7 @@ sequenceDiagram
 
 ## 8. What this engine deliberately does *not* do
 
-- **Does not answer questions about Spotify pricing, podcast bugs, login issues, etc.** — that's what the scope wrapper enforces.
+- **Does not answer questions about Spotify pricing, podcast bugs, login issues, etc.** - that's what the scope wrapper enforces.
 - **Does not invent insights.** Every claim ties to retrieved review IDs.
 - **Does not silently inflate the dataset.** Curated seeds are flagged.
 - **Does not perform sentiment analysis as a separate stage.** Sentiment is implicit in the rating + canonical tagging; building a separate sentiment classifier added complexity without insight gain.
@@ -611,11 +611,11 @@ sequenceDiagram
 
 ## 9. Where to start reading the code
 
-1. `doc/problemStatement.md` — the *why*
-2. `src/canonical.py` — the 6 questions, the contract
-3. `src/lexicon.py` — Spotify-domain vocabulary
-4. `src/schema.py` — data shapes
-5. `src/pipeline/refresh.py` — the orchestrator (read this top-to-bottom to understand the full pipeline)
-6. `src/rag/scope.py` + `src/rag/answer.py` — the runtime engine
-7. `app/streamlit_app.py` — the UI
-8. `.github/workflows/refresh.yml` — the CI loop
+1. `doc/problemStatement.md` - the *why*
+2. `src/canonical.py` - the 6 questions, the contract
+3. `src/lexicon.py` - Spotify-domain vocabulary
+4. `src/schema.py` - data shapes
+5. `src/pipeline/refresh.py` - the orchestrator (read this top-to-bottom to understand the full pipeline)
+6. `src/rag/scope.py` + `src/rag/answer.py` - the runtime engine
+7. `app/streamlit_app.py` - the UI
+8. `.github/workflows/refresh.yml` - the CI loop

@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 USER_AGENT = "spotify-discovery-pm:v0.1 (research; +contact via github)"
 TIMEOUT = 20.0
-SLEEP_BETWEEN_CALLS = 1.6  # seconds — stay well under 60 req/min
+SLEEP_BETWEEN_CALLS = 1.6  # seconds - stay well under 60 req/min
 
 # (subreddit, search_query, max_posts)
 SEARCH_PLAN: list[tuple[str, str, int]] = [
@@ -53,7 +53,7 @@ def _get_json(url: str) -> dict | None:
             timeout=TIMEOUT,
         )
         if resp.status_code == 429:
-            log.warning("Reddit 429 on %s — backing off 30s", url)
+            log.warning("Reddit 429 on %s - backing off 30s", url)
             time.sleep(30)
             return None
         if resp.status_code != 200:

@@ -1,17 +1,17 @@
-# Frontend — Spotify Discovery Review Engine
+# Frontend - Spotify Discovery Review Engine
 
 React + Vite + TypeScript + Tailwind UI for the AI Review Discovery Engine.
 
 ## Local dev (two-terminal setup)
 
-**Terminal 1 — backend (port 8000):**
+**Terminal 1 - backend (port 8000):**
 
 ```bash
 cd ..                                # back to 01-ai-review-engine/
 uvicorn backend.main:app --reload --port 8000
 ```
 
-**Terminal 2 — frontend (port 5173):**
+**Terminal 2 - frontend (port 5173):**
 
 ```bash
 cd frontend
@@ -23,12 +23,12 @@ Open <http://localhost:5173>. The Vite dev server proxies `/api/*` to the FastAP
 
 ## What you can do in the UI
 
-- **Metadata bar** — last refresh, total normalized (capped at 1000), discovery-relevant count + %, Chroma index size, per-source breakdown chips, per-canonical-tag counts
-- **Excel export** — one-click multi-sheet workbook (canonical Q&A, all reviews, themes, metadata)
-- **Reload** — drops backend in-memory caches without restarting (picks up a fresh refresh)
-- **6 canonical question cards** — click to expand the precomputed RAG synthesis + supporting reviews
-- **Supporting reviews** — paginated 5-at-a-time with "View N more"
-- **Ask a custom question** — scope wrapper (fast cosine + LLM fallback) routes in-scope questions through live RAG; out-of-scope questions are gracefully refused
+- **Metadata bar** - last refresh, total normalized (capped at 1000), discovery-relevant count + %, Chroma index size, per-source breakdown chips, per-canonical-tag counts
+- **Excel export** - one-click multi-sheet workbook (canonical Q&A, all reviews, themes, metadata)
+- **Reload** - drops backend in-memory caches without restarting (picks up a fresh refresh)
+- **6 canonical question cards** - click to expand the precomputed RAG synthesis + supporting reviews
+- **Supporting reviews** - paginated 5-at-a-time with "View N more"
+- **Ask a custom question** - scope wrapper (fast cosine + LLM fallback) routes in-scope questions through live RAG; out-of-scope questions are gracefully refused
 
 ## Folder layout
 

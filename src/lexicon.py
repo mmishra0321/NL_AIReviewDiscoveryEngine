@@ -1,4 +1,4 @@
-"""Spotify feature lexicon — used to extract feature-level mentions from reviews
+"""Spotify feature lexicon - used to extract feature-level mentions from reviews
 and to ground LLM prompts in product specifics. Keeps the analysis "meticulous".
 """
 from __future__ import annotations

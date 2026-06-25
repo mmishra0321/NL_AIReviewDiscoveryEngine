@@ -1,10 +1,10 @@
-"""Multi-sheet Excel export — used by GET /api/export.xlsx.
+"""Multi-sheet Excel export - used by GET /api/export.xlsx.
 
 Sheets:
-1. Canonical Q&A   — the 6 precomputed answers
-2. Reviews         — all normalized reviews (incl. raw + derived fields)
-3. Themes / Tags   — counts per canonical tag and Spotify feature
-4. Metadata        — last refresh, sources, totals
+1. Canonical Q&A   - the 6 precomputed answers
+2. Reviews         - all normalized reviews (incl. raw + derived fields)
+3. Themes / Tags   - counts per canonical tag and Spotify feature
+4. Metadata        - last refresh, sources, totals
 """
 from __future__ import annotations
 

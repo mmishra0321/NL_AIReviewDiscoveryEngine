@@ -1,6 +1,6 @@
 """Apple App Store reviews via the public iTunes RSS feed.
 
-Apple exposes a paginated JSON RSS endpoint for customer reviews — no API key
+Apple exposes a paginated JSON RSS endpoint for customer reviews - no API key
 required. Pages 1-10 are typically retrievable per storefront. Each page has
 ~50 reviews. We sweep several storefronts for balanced geography.
 
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 SPOTIFY_APP_ID = 324684580
 
-# (country_code, max_pages) — Apple caps at 10 pages × ~50 reviews each.
+# (country_code, max_pages) - Apple caps at 10 pages × ~50 reviews each.
 # Total ~600 raw → ~400 survive the normalize-stage cap (see config.REVIEW_BUDGET_BY_SOURCE).
 COUNTRIES: list[tuple[str, int]] = [
     ("us", 4),

@@ -152,7 +152,7 @@ def fetch_trustpilot(max_pages: int = DEFAULT_MAX_PAGES) -> list[dict]:
 
     NOTE: Trustpilot serves pages behind Cloudflare. Without a Cloudflare-aware
     client (e.g. `cloudscraper`, `curl_cffi`), most plain-`requests` calls get
-    403'd. This scraper handles that gracefully — if page 1 fails, we skip
+    403'd. This scraper handles that gracefully - if page 1 fails, we skip
     Trustpilot entirely for this run.
     """
     out: list[dict] = []
@@ -188,7 +188,7 @@ def fetch_trustpilot(max_pages: int = DEFAULT_MAX_PAGES) -> list[dict]:
         added = len(out) - page_count_before
         log.info("Trustpilot page %d: +%d reviews (total=%d)", page, added, len(out))
         if added == 0:
-            # Either page is empty or shape changed — bail out gracefully
+            # Either page is empty or shape changed - bail out gracefully
             log.info("Trustpilot: no new reviews on page %d, stopping", page)
             break
 

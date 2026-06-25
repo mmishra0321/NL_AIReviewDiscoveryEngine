@@ -1,4 +1,4 @@
-"""Service layer — caches expensive resources + adapts internal data shapes
+"""Service layer - caches expensive resources + adapts internal data shapes
 to the API response shapes the React frontend wants.
 
 We intentionally keep this thin: the heavy lifting (RAG retrieve+answer,
@@ -54,7 +54,7 @@ def metadata() -> dict[str, Any]:
 
 
 def invalidate_caches() -> None:
-    """Called by /api/admin/reload — picks up a new pipeline run without restart."""
+    """Called by /api/admin/reload - picks up a new pipeline run without restart."""
     reviews_by_id.cache_clear()
     all_reviews.cache_clear()
     canonical_answers.cache_clear()
@@ -94,7 +94,7 @@ def reviews_for_ids(ids: list[str]) -> list[dict[str, Any]]:
 # ---------------- Canonical Q&A ----------------
 
 def list_canonical_summaries() -> list[dict[str, Any]]:
-    """Card-level summary for the home grid — no review hydration here
+    """Card-level summary for the home grid - no review hydration here
     (keeps the home payload small)."""
     answers = canonical_answers().get("answers", {})
     out: list[dict[str, Any]] = []

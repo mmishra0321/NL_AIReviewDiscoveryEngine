@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatRelativeTime(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const t = new Date(iso).getTime();
   if (Number.isNaN(t)) return iso;
   const diffSec = Math.round((Date.now() - t) / 1000);
@@ -17,7 +17,7 @@ export function formatRelativeTime(iso: string | null | undefined): string {
 }
 
 export function formatNumber(n: number | undefined | null): string {
-  if (n === undefined || n === null) return "—";
+  if (n === undefined || n === null) return "-";
   return n.toLocaleString("en-US");
 }
 

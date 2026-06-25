@@ -74,7 +74,7 @@ export function MetadataBar({ onRefreshed }: { onRefreshed?: () => void }) {
         <Stat label="Indexed in Chroma" value={formatNumber(meta.chroma_collection_size)} sub="embeddings" />
         <Stat
           label="Scraped this run"
-          value={scrapedThisRun > 0 ? formatNumber(scrapedThisRun) : "—"}
+          value={scrapedThisRun > 0 ? formatNumber(scrapedThisRun) : "-"}
           sub={scrapedThisRun > 0
             ? Object.entries(scrapeCounts).map(([k, v]) => `${k}:${v}`).join(" · ")
             : "reused cached raw"}

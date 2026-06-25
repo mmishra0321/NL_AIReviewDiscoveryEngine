@@ -1,4 +1,4 @@
-"""Streamlit dashboard — the deployed Review Discovery Engine UI.
+"""Streamlit dashboard - the deployed Review Discovery Engine UI.
 
 Layout:
 - Metadata header (last refresh, counts, Excel download)
@@ -34,12 +34,18 @@ from src.rag.answer import answer_question
 from src.rag.precompute import load_canonical_answers
 from src.rag.scope import OUT_OF_SCOPE_MESSAGE, evaluate_scope
 
+# Backend service for GitHub Actions history (works in-process; no HTTP hop)
+try:
+    from backend.github_actions import list_action_runs
+except Exception:                                                 # noqa: BLE001
+    list_action_runs = None                                       # type: ignore[assignment]
+
 logging.basicConfig(level=logging.INFO)
 
 # ---------------- Page config + theme ----------------
 
 st.set_page_config(
-    page_title="Spotify Discovery Pain — AI Review Engine",
+    page_title="Spotify Discovery Pain - AI Review Engine",
     page_icon="🎧",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -278,7 +284,7 @@ st.markdown(
     f"""
     <h1 style="color:{SPOTIFY_GREEN};margin-bottom:0;">🎧 Spotify Discovery Pain</h1>
     <p style="color:{SPOTIFY_GRAY};margin-top:4px;">
-        AI-powered review discovery engine — what users actually say about Spotify's recommendations.
+        AI-powered review discovery engine. What real users say about Spotify's recommendations.
     </p>
     """,
     unsafe_allow_html=True,
@@ -310,6 +316,124 @@ with c2:
 
 st.markdown("---")
 
+# ---------------- GitHub Actions history ----------------
+
+@st.cache_data(ttl=300)
+def load_action_runs() -> dict:
+    if list_action_runs is None:
+        return {"runs": [], "actions_tab_url": None}
+    try:
+        return list_action_runs(limit=10)
+    except Exception as exc:                                      # noqa: BLE001
+        return {"runs": [], "actions_tab_url": None, "error": str(exc)}
+
+
+def _status_pill(status: str) -> str:
+    palette = {
+        "success":       ("#0d4a26", "#1DB954"),
+        "failure":       ("#3A1C1C", "#FFB4B4"),
+        "cancelled":     ("#2A2A2A", "#B3B3B3"),
+        "skipped":       ("#2A2A2A", "#B3B3B3"),
+        "pending":       ("#4A3A0D", "#FFD180"),
+        "no_action_yet": ("#1C2A3A", "#90C8FF"),
+    }
+    bg, fg = palette.get(status, ("#2A2A2A", "#B3B3B3"))
+    label = {"no_action_yet": "initial commit", "failure": "failed", "pending": "running"}.get(status, status)
+    return (
+        f'<span style="background:{bg};color:{fg};padding:2px 8px;'
+        f'border-radius:4px;font-size:11px;font-weight:600;">{label}</span>'
+    )
+
+
+def _relative(iso: str | None) -> str:
+    if not iso:
+        return "unknown"
+    try:
+        t = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    except Exception:                                             # noqa: BLE001
+        return iso
+    diff = (datetime.now(t.tzinfo) - t).total_seconds()
+    if diff < 60:   return f"{int(diff)}s ago"
+    if diff < 3600: return f"{int(diff // 60)}m ago"
+    if diff < 86400: return f"{int(diff // 3600)}h ago"
+    return f"{int(diff // 86400)}d ago"
+
+
+actions = load_action_runs()
+st.markdown("### 🔁 Weekly refresh history")
+st.caption(
+    "GitHub Actions run every Monday at 02:00 UTC. Each successful run commits "
+    "fresh data to the repo. Download the exact snapshot from any past run below."
+)
+
+if actions.get("error"):
+    st.warning(f"Could not fetch run history: {actions['error']}")
+
+runs = actions.get("runs", [])
+if not runs:
+    st.info(
+        "No runs found yet. After the first GitHub Action runs, completed snapshots "
+        "will appear here."
+    )
+else:
+    show_all = st.checkbox(
+        f"Show all {len(runs)} runs", value=False, key="show_all_runs",
+    ) if len(runs) > 1 else True
+    visible = runs if show_all else runs[:1]
+
+    for r in visible:
+        pill = _status_pill(r.get("status", "pending"))
+        title = r.get("title", "refresh")
+        when = _relative(r.get("started_at"))
+        utc = (r.get("started_at") or "").replace("T", " ").replace("Z", "")
+        sha = (r.get("output_sha") or "")[:7]
+        run_link = (
+            f'<a href="{r["html_url"]}" target="_blank" '
+            f'style="color:#9CA3AF;font-size:12px;text-decoration:none;">↗ view run</a>'
+            if r.get("html_url") else ""
+        )
+        st.markdown(
+            f"""<div style="border:1px solid #2F2F2F;border-radius:10px;
+                            background:#1C1C1C;padding:12px 14px;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    {pill}
+                    <span style="font-weight:600;color:#FFFFFF;">{title}</span>
+                    <span style="color:#9CA3AF;font-size:12px;">{when}</span>
+                    <span style="color:#6B7280;font-size:12px;">{utc}</span>
+                    <span style="font-family:monospace;color:#6B7280;font-size:11px;">#{sha}</span>
+                    <span style="margin-left:auto;">{run_link}</span>
+                </div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+        dl = r.get("downloads") or {}
+        if dl:
+            cols = st.columns(4)
+            for col, (key, label) in zip(cols, [
+                ("reviews_jsonl",     "📄 reviews.jsonl"),
+                ("metadata",          "🧾 metadata.json"),
+                ("canonical_answers", "🧠 canonical answers"),
+                ("seed_reviews",      "🌱 seed reviews"),
+            ]):
+                url = dl.get(key)
+                if url:
+                    col.markdown(
+                        f'<a href="{url}" target="_blank" download '
+                        f'style="display:inline-block;background:#1DB954;color:#000;'
+                        f'padding:6px 12px;border-radius:6px;font-weight:600;'
+                        f'font-size:12px;text-decoration:none;width:100%;text-align:center;">'
+                        f'⬇ {label}</a>',
+                        unsafe_allow_html=True,
+                    )
+
+    if actions.get("actions_tab_url"):
+        st.caption(
+            f"[View all runs on GitHub →]({actions['actions_tab_url']})"
+        )
+
+st.markdown("---")
+
 # ---------------- Tabs ----------------
 
 tab_questions, tab_custom, tab_themes, tab_arch, tab_raw = st.tabs(
@@ -324,7 +448,7 @@ with tab_questions:
 
     answers = canon.get("answers", {})
 
-    # Card grid — 2 columns of 3
+    # Card grid - 2 columns of 3
     cols = st.columns(3)
     for idx, q in enumerate(CANONICAL_QUESTIONS):
         a = answers.get(q.id)
@@ -365,7 +489,7 @@ with tab_questions:
 
 # ---- Tab: Custom Question ----
 with tab_custom:
-    st.subheader("Ask any question — scope-wrapped")
+    st.subheader("Ask any question - scope-wrapped")
     st.caption(
         "If your question is similar to one of the 6 canonical questions, the engine "
         "answers it with retrieved review evidence. Otherwise it returns an out-of-scope message."
@@ -489,7 +613,7 @@ with tab_arch:
         f"""
 - **Grounded:** every answer cites the specific reviews it drew from.
   Click into any answer and read the verbatim user voice.
-- **Refreshable:** the Chroma index is upserted weekly by GitHub Actions —
+- **Refreshable:** the Chroma index is upserted weekly by GitHub Actions -
   new reviews automatically shift answers.
 - **Bounded:** the scope wrapper prevents the LLM from inventing answers
   to questions this dataset can't support.
@@ -501,7 +625,7 @@ with tab_arch:
 
 # ---- Tab: Raw Data ----
 with tab_raw:
-    st.subheader(f"Raw reviews — {len(df_reviews):,} rows")
+    st.subheader(f"Raw reviews - {len(df_reviews):,} rows")
     if df_reviews.empty:
         st.info("No data yet. Run `python -m src.pipeline.refresh` first.")
     else:

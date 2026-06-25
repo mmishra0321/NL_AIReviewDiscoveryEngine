@@ -89,3 +89,34 @@ export interface AskResponseOutOfScope {
 }
 
 export type AskResponse = AskResponseInScope | AskResponseOutOfScope;
+
+// --- GitHub Actions history -------------------------------------------
+
+export type RunStatus =
+  | "success" | "failure" | "cancelled" | "skipped" | "pending" | "no_action_yet";
+
+export interface ActionRun {
+  id: number | null;
+  title: string;
+  status: RunStatus;
+  started_at: string | null;
+  finished_at: string | null;
+  html_url: string | null;
+  head_sha: string | null;
+  output_sha: string | null;
+  downloads: {
+    metadata: string;
+    reviews_jsonl: string;
+    canonical_answers: string;
+    seed_reviews: string;
+  } | null;
+}
+
+export interface ActionsResponse {
+  owner: string;
+  repo: string;
+  workflow_file: string;
+  actions_tab_url: string;
+  runs: ActionRun[];
+  last_success: ActionRun | null;
+}

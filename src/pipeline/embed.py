@@ -1,7 +1,7 @@
 """Local embeddings + persistent Chroma collection.
 
 We use sentence-transformers (CPU, free, no API limits). Chroma is
-persistent — the directory ships in the repo so deployment is zero-setup.
+persistent - the directory ships in the repo so deployment is zero-setup.
 """
 from __future__ import annotations
 

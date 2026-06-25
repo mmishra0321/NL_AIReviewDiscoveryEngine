@@ -41,3 +41,9 @@ build/
 # Debug screenshots and dev artifacts
 assets/streamlit_*.png
 assets/screenshot_*.png
+frontend/engine-*.png
+
+# Backend / frontend dev logs
+data/backend.log
+data/frontend.log
+data/refresh.log

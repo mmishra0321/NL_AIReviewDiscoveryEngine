@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html, body, #root {
+    @apply h-full bg-bg text-fg font-sans antialiased;
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 20% -10%, rgba(29,185,84,0.08), transparent 60%),
+      radial-gradient(900px 500px at 95% 0%, rgba(59,130,246,0.06), transparent 60%),
+      #0a0a0b;
+    min-height: 100vh;
+  }
+  *::selection { background: rgba(29,185,84,0.3); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+}
+
+@layer components {
+  .shimmer {
+    background: linear-gradient(110deg, #1a1a1d 8%, #232328 18%, #1a1a1d 33%);
+    background-size: 1000px 100%;
+    @apply animate-shimmer rounded;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full border border-border bg-bg-subtle px-2.5 py-0.5 text-xs text-fg-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md bg-bg-subtle border border-border px-2 py-0.5 text-[11px] text-fg-muted;
+  }
+  .focus-ring {
+    @apply outline-none ring-0 focus-visible:ring-2 focus-visible:ring-brand/60 focus-visible:ring-offset-0;
+  }
+}

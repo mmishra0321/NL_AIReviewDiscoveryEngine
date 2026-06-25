@@ -6,7 +6,15 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-ReviewSource = Literal["app_store", "play_store", "reddit", "community", "curated_seed"]
+ReviewSource = Literal[
+    "app_store",
+    "play_store",
+    "reddit",
+    "trustpilot",
+    "youtube",
+    "community",
+    "curated_seed",
+]
 
 
 class Review(BaseModel):

@@ -18,13 +18,19 @@ log = logging.getLogger(__name__)
 
 SPOTIFY_APP_ID = 324684580
 
-# (country_code, max_pages) — Apple caps at 10
+# (country_code, max_pages) — Apple caps at 10 pages × ~50 reviews each.
+# Total ~600 raw → ~400 survive the normalize-stage cap (see config.REVIEW_BUDGET_BY_SOURCE).
 COUNTRIES: list[tuple[str, int]] = [
-    ("us", 8),
-    ("gb", 6),
-    ("in", 6),
-    ("de", 4),
-    ("br", 4),
+    ("us", 4),
+    ("gb", 3),
+    ("in", 3),
+    ("ca", 2),
+    ("au", 2),
+    ("de", 2),
+    ("fr", 1),
+    ("br", 2),
+    ("mx", 1),
+    ("es", 1),
 ]
 
 

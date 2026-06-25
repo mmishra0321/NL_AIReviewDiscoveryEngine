@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
+import time
 from typing import TypeVar
 
 from groq import Groq, RateLimitError
@@ -21,7 +23,12 @@ from tenacity import (
     wait_exponential,
 )
 
-from src.config import GROQ_API_KEY, GROQ_MODEL, GROQ_MODEL_FAST
+from src.config import (
+    GROQ_API_KEY,
+    GROQ_MIN_INTERVAL_SECONDS,
+    GROQ_MODEL,
+    GROQ_MODEL_FAST,
+)
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +36,23 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class GroqClient:
+    """Thin wrapper around Groq SDK with **process-wide rate limiting**.
+
+    Free-tier Groq today allows ~30 req/min. To stay safely under that,
+    every call to `_complete` first acquires a class-level lock and sleeps
+    until at least `GROQ_MIN_INTERVAL_SECONDS` have elapsed since the last
+    call across *any* GroqClient instance in this process. Combined with
+    the tenacity retry on `RateLimitError`, this means:
+
+    - Most calls never see a 429 (the throttle keeps us under the limit).
+    - Any 429 that does slip through (e.g. burst from another process)
+      is retried with exponential backoff.
+    """
+
+    # --- Class-level throttle state (shared by all instances) ---
+    _throttle_lock: threading.Lock = threading.Lock()
+    _last_call_monotonic: float = 0.0
+
     def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
         key = api_key or GROQ_API_KEY
         if not key:
@@ -38,6 +62,16 @@ class GroqClient:
             )
         self._client = Groq(api_key=key)
         self.model = model or GROQ_MODEL
+
+    @classmethod
+    def _throttle(cls) -> None:
+        """Sleep so calls are at least GROQ_MIN_INTERVAL_SECONDS apart."""
+        with cls._throttle_lock:
+            now = time.monotonic()
+            wait = GROQ_MIN_INTERVAL_SECONDS - (now - cls._last_call_monotonic)
+            if wait > 0:
+                time.sleep(wait)
+            cls._last_call_monotonic = time.monotonic()
 
     @retry(
         retry=retry_if_exception_type(RateLimitError),
@@ -55,6 +89,7 @@ class GroqClient:
         json_mode: bool = False,
         max_tokens: int = 1024,
     ) -> str:
+        self._throttle()
         kwargs: dict = {
             "model": model or self.model,
             "messages": [

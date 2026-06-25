@@ -14,14 +14,20 @@ log = logging.getLogger(__name__)
 
 SPOTIFY_APP_ID = "com.spotify.music"
 
-# Country code, language code, soft cap on reviews
+# Country code, language code, soft cap on reviews.
+# Total ~800 raw → ~350 survive the normalize-stage cap (see config.REVIEW_BUDGET_BY_SOURCE).
 COUNTRY_CONFIG: list[tuple[str, str, int]] = [
-    ("us", "en", 300),
-    ("gb", "en", 200),
-    ("in", "en", 250),
-    ("in", "hi", 150),
-    ("de", "de", 100),
-    ("br", "pt", 100),
+    ("us", "en", 150),
+    ("gb", "en", 100),
+    ("in", "en", 100),
+    ("in", "hi", 80),
+    ("ca", "en", 60),
+    ("au", "en", 60),
+    ("de", "de", 60),
+    ("fr", "fr", 60),
+    ("br", "pt", 60),
+    ("mx", "es", 50),
+    ("es", "es", 50),
 ]
 
 

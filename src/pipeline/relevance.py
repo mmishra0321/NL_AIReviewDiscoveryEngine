@@ -18,41 +18,30 @@ from tqdm import tqdm
 
 from src.canonical import CANONICAL_QUESTIONS
 from src.config import RELEVANCE_BATCH_SIZE
-from src.lexicon import feature_lexicon_for_prompt
 from src.pipeline.groq_client import fast_client
 from src.schema import Review
 
 log = logging.getLogger(__name__)
 
 CANONICAL_LIST_PROMPT = "\n".join(
-    f"- {q.id}: {q.full}" for q in CANONICAL_QUESTIONS
+    f"- {q.id}: {q.short}" for q in CANONICAL_QUESTIONS
 )
 
-SYSTEM_PROMPT = f"""You are an expert PM analyst classifying Spotify user reviews.
+# Compact system prompt — every token here multiplies by N batches. Aim ~350 tok.
+SYSTEM_PROMPT = f"""Classify Spotify reviews for music-DISCOVERY relevance.
 
-For each review, decide:
-1. is_relevant: TRUE only if the review is about *music discovery*, *recommendations*,
-   *repetitive listening*, *exploring new artists/genres*, or *Spotify discovery
-   surfaces*. Bug reports, login issues, billing, audio quality, podcast/audiobook
-   specific issues are NOT relevant unless they directly impact discovery.
-2. canonical_tags: which of these canonical questions does this review support?
-   (zero, one, or many)
+is_relevant=TRUE iff review touches: music discovery, recommendations, repetitive
+listening, exploring new artists/genres, or Spotify discovery surfaces (Discover
+Weekly, Daily Mix, Daylist, Release Radar, DJ, AI Playlist, Smart Shuffle, Blend,
+Niche Mixes, Radio, Search, Home).
+is_relevant=FALSE for: login, billing, audio quality, podcasts/audiobooks,
+account, ads, sync — unless they directly affect discovery.
+
+canonical_tags: zero or more of:
 {CANONICAL_LIST_PROMPT}
 
-You are aware of these Spotify features when interpreting reviews:
-{feature_lexicon_for_prompt()}
-
-Output STRICT JSON shaped exactly like:
-{{
-  "verdicts": [
-    {{"id": "<review id>", "is_relevant": true|false,
-      "reason": "<one short clause>",
-      "canonical_tags": ["Q1_struggle", ...] }}
-  ]
-}}
-
-Only include entries for reviews provided. Do not invent IDs.
-"""
+Output strict JSON: {{"verdicts":[{{"id":"...","is_relevant":bool,"reason":"<8w>","canonical_tags":["Q1_struggle",...]}}]}}.
+Include one entry per input id. Do not invent ids."""
 
 
 def _batch(items: list[Review], size: int) -> Iterable[list[Review]]:
@@ -61,11 +50,13 @@ def _batch(items: list[Review], size: int) -> Iterable[list[Review]]:
 
 
 def _format_user_payload(batch: list[Review]) -> str:
+    # Tight payload: just id + truncated text. Rating/source aren't needed for
+    # the relevance call (we have them in the DB) and burn tokens.
     rows = [
-        {"id": r.id, "text": r.text[:600], "rating": r.rating, "source": r.source}
+        {"id": r.id, "text": r.text[:280]}
         for r in batch
     ]
-    return "Reviews to classify:\n" + json.dumps(rows, ensure_ascii=False)
+    return json.dumps(rows, ensure_ascii=False)
 
 
 def classify_relevance(
@@ -86,7 +77,7 @@ def classify_relevance(
             data = client.chat_json(
                 system=SYSTEM_PROMPT,
                 user=_format_user_payload(batch),
-                max_tokens=2048,
+                max_tokens=700,
                 temperature=0.0,
             )
         except Exception as exc:                                # noqa: BLE001

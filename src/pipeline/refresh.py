@@ -20,9 +20,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from src.config import (
+    MAX_REVIEWS_TO_CLASSIFY,
     METADATA_PATH,
     PROCESSED_DIR,
     RAW_DIR,
+    REVIEW_BUDGET_BY_SOURCE,
     REVIEWS_PATH,
     SEED_PATH,
 )
@@ -73,6 +75,39 @@ def stage_scrape(skip: bool = False) -> dict[str, int]:
     except Exception as exc:                                       # noqa: BLE001
         log.warning("App Store scraper failed: %s", exc)
 
+    # Reddit (public JSON API; no auth)
+    try:
+        from src.scrapers.reddit import fetch_reddit
+        rd = fetch_reddit()
+        if rd:
+            n = write_jsonl(RAW_DIR / "reddit.jsonl", rd)
+            counts["reddit"] = n
+            log.info("Reddit: wrote %d", n)
+    except Exception as exc:                                       # noqa: BLE001
+        log.warning("Reddit scraper failed: %s", exc)
+
+    # Trustpilot (HTML + __NEXT_DATA__)
+    try:
+        from src.scrapers.trustpilot import fetch_trustpilot
+        tp = fetch_trustpilot()
+        if tp:
+            n = write_jsonl(RAW_DIR / "trustpilot.jsonl", tp)
+            counts["trustpilot"] = n
+            log.info("Trustpilot: wrote %d", n)
+    except Exception as exc:                                       # noqa: BLE001
+        log.warning("Trustpilot scraper failed: %s", exc)
+
+    # YouTube vlog comments (no auth)
+    try:
+        from src.scrapers.youtube import fetch_youtube
+        yt = fetch_youtube()
+        if yt:
+            n = write_jsonl(RAW_DIR / "youtube.jsonl", yt)
+            counts["youtube"] = n
+            log.info("YouTube: wrote %d", n)
+    except Exception as exc:                                       # noqa: BLE001
+        log.warning("YouTube scraper failed: %s", exc)
+
     return counts
 
 
@@ -89,37 +124,92 @@ def stage_normalize(seed_only: bool = False) -> list[Review]:
         log.info("Loaded %d curated seed reviews", len(candidates))
 
     if not seed_only:
-        # Play Store
-        ps_path = RAW_DIR / "play_store.jsonl"
-        if ps_path.exists():
-            ps_in = 0
-            for raw in load_jsonl(ps_path):
-                n = normalize_record(raw, source="play_store")
+        # source-name → file mapping
+        from src.schema import ReviewSource
+        scraped_sources: list[tuple[ReviewSource, str]] = [
+            ("play_store", "play_store.jsonl"),
+            ("app_store", "app_store.jsonl"),
+            ("reddit", "reddit.jsonl"),
+            ("trustpilot", "trustpilot.jsonl"),
+            ("youtube", "youtube.jsonl"),
+        ]
+        for src_name, fname in scraped_sources:
+            path = RAW_DIR / fname
+            if not path.exists():
+                continue
+            count_in = 0
+            for raw in load_jsonl(path):
+                n = normalize_record(raw, source=src_name)
                 if n:
                     candidates.append(n)
-                    ps_in += 1
-            log.info("Normalized %d Play Store reviews", ps_in)
-
-        # App Store
-        ap_path = RAW_DIR / "app_store.jsonl"
-        if ap_path.exists():
-            ap_in = 0
-            for raw in load_jsonl(ap_path):
-                n = normalize_record(raw, source="app_store")
-                if n:
-                    candidates.append(n)
-                    ap_in += 1
-            log.info("Normalized %d App Store reviews", ap_in)
+                    count_in += 1
+            log.info("Normalized %d %s reviews", count_in, src_name)
 
     deduped = merge_and_dedupe(candidates)
     log.info("After dedupe: %d unique reviews", len(deduped))
 
+    # Apply per-source budget cap so we never exceed MAX_REVIEWS_TO_CLASSIFY.
+    # Keeps Groq token consumption bounded (~50k tokens / refresh at default cap).
+    capped = _apply_source_budget(deduped)
+    if len(capped) < len(deduped):
+        log.info(
+            "Cap applied: %d → %d reviews (MAX_REVIEWS_TO_CLASSIFY=%d, per-source budget: %s)",
+            len(deduped), len(capped), MAX_REVIEWS_TO_CLASSIFY, REVIEW_BUDGET_BY_SOURCE,
+        )
+
     # Cache lexicon features at normalize time (no LLM needed for this)
-    for r in deduped:
+    for r in capped:
         r.features_mentioned = detect_features(r.text)
 
-    write_canonical_store(deduped)
-    return deduped
+    write_canonical_store(capped)
+    return capped
+
+
+def _apply_source_budget(reviews: list[Review]) -> list[Review]:
+    """Trim to MAX_REVIEWS_TO_CLASSIFY using REVIEW_BUDGET_BY_SOURCE quotas.
+
+    Algorithm:
+    1. Bucket reviews by source.
+    2. Per bucket, take up to its quota (newest-first, leveraging insertion order).
+    3. If we have leftover headroom (because some sources under-delivered),
+       round-robin extra reviews from the over-supplied sources until we hit
+       MAX_REVIEWS_TO_CLASSIFY.
+    """
+    if not reviews:
+        return []
+
+    by_source: dict[str, list[Review]] = {}
+    for r in reviews:
+        by_source.setdefault(r.source, []).append(r)
+
+    out: list[Review] = []
+    overflow: dict[str, list[Review]] = {}
+    for src, lst in by_source.items():
+        quota = REVIEW_BUDGET_BY_SOURCE.get(src, 0)
+        if quota <= 0:
+            # No quota configured for this source — keep nothing by default
+            continue
+        kept = lst[:quota]
+        out.extend(kept)
+        if len(lst) > quota:
+            overflow[src] = lst[quota:]
+
+    # Distribute remaining headroom across the sources that have extras
+    headroom = MAX_REVIEWS_TO_CLASSIFY - len(out)
+    if headroom > 0 and overflow:
+        # Round-robin to keep the mix balanced
+        idx = 0
+        ordered_overflow = list(overflow.values())
+        while headroom > 0 and any(ordered_overflow):
+            bucket = ordered_overflow[idx % len(ordered_overflow)]
+            if bucket:
+                out.append(bucket.pop(0))
+                headroom -= 1
+            idx += 1
+            if idx > 100_000:                              # paranoia bail
+                break
+
+    return out[:MAX_REVIEWS_TO_CLASSIFY]
 
 
 def stage_classify(reviews: list[Review]) -> list[Review]:

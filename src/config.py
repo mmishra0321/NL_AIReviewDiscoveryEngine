@@ -41,10 +41,37 @@ EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 EMBED_DIM = 384
 
 # --- Pipeline knobs ---
-RELEVANCE_BATCH_SIZE = 10            # reviews per LLM classifier call
+RELEVANCE_BATCH_SIZE = 15            # reviews per LLM classifier call (tuned for 6k TPM)
 RAG_RETRIEVE_K = 25                  # initial retrieval
 RAG_TOP_K = 15                       # after MMR re-rank, fed to LLM
 RAG_DISPLAY_PAGE = 5                 # reviews shown per UI page
+
+# --- Groq free-tier guardrails ---
+# Free tier today: 30 RPM but the binding constraint is TPM (~6k tok/min on
+# llama-3.1-8b-instant, ~12k on llama-3.3-70b-versatile).
+# Each relevance-classify call burns ~1500-2000 tokens, so the effective RPM
+# we can sustain is ~4-6/min, i.e. ~12-15s between calls. We throttle to 13s
+# so Groq never has to 429 us — cleaner logs, predictable pace, same throughput.
+GROQ_MIN_INTERVAL_SECONDS = 13.0
+
+# Hard ceiling on how many normalized reviews enter the relevance classifier
+# (and therefore get embedded + indexed). Keeps Groq token usage bounded.
+# Set to 1000 by default — gives 100 batches × ~500 tok = ~50k tok per refresh,
+# well under daily limits.
+MAX_REVIEWS_TO_CLASSIFY = 1000
+
+# Per-source quotas when applying MAX_REVIEWS_TO_CLASSIFY. Seed reviews are
+# always kept in full; the remaining budget is split across scraped sources.
+# Any source that under-delivers donates its slack to the others.
+REVIEW_BUDGET_BY_SOURCE: dict[str, int] = {
+    "curated_seed": 100,
+    "app_store":    400,
+    "play_store":   350,
+    "youtube":      150,
+    "reddit":       0,    # requires OAuth; off by default
+    "trustpilot":   0,    # blocked by Cloudflare; off by default
+    "community":    0,
+}
 
 # Scope wrapper thresholds (cosine similarity to nearest canonical Q)
 SCOPE_IN_THRESHOLD = 0.55            # >= → in-scope (fast path)

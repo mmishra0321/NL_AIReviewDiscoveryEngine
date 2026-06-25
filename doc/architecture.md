@@ -61,7 +61,260 @@ flowchart TB
 
 ---
 
-## 2. Component-by-component walkthrough
+## 2. Build Phases (Phase-by-Phase Plan Architecture)
+
+The engine was built in **8 internal phases (E0 – E7)**. Phases E0–E6 are
+complete; E7 (production deploy) waits for the GitHub push.
+
+```mermaid
+flowchart LR
+    E0[E0 · Scaffold<br/>1h ✅] --> E1[E1 · Ingestion<br/>2h ✅]
+    E1 --> E2[E2 · Normalize +<br/>Filter · 2h ✅]
+    E2 --> E3[E3 · Embed +<br/>Index · 1h ✅]
+    E3 --> E4[E4 · RAG System<br/>3h ✅]
+    E4 --> E5[E5 · Dashboard<br/>3h ✅]
+    E5 --> E6[E6 · CI/CD<br/>1h ✅]
+    E6 --> E7[E7 · Deploy<br/>30m ⏳]
+
+    style E7 fill:#2D5016,stroke:#1DB954,color:#fff
+```
+
+This phase chain is *strictly sequential* — each phase consumes the
+previous phase's output. Total build time across E0–E6: ~13 hours of
+focused work, which collapsed into a single intense build day.
+
+---
+
+### E0 — Scaffold (config, schema, Groq client, canonicals, lexicon)
+
+| Field | Value |
+|---|---|
+| **Objective** | Lay the foundation files every other phase depends on |
+| **Duration** | ~1 hour · ✅ Done |
+| **Inputs** | Brief's 6 canonical questions; Groq API key; Spotify feature list |
+| **Outputs** | Working Groq client with retries; Pydantic schemas; the canonical questions encoded as data; the Spotify lexicon |
+| **Tools** | `groq` SDK, `pydantic`, `python-dotenv`, `tenacity` |
+| **Files produced** | `src/config.py`, `src/canonical.py`, `src/lexicon.py`, `src/schema.py`, `src/pipeline/groq_client.py`, `.env`, `.env.example`, `requirements.txt` |
+| **Acceptance** | `[1]` and `[2]` smoke checks pass (env loaded; Groq PING→PONG) |
+
+---
+
+### E1 — Data Ingestion (scrapers + curated seed reviews)
+
+| Field | Value |
+|---|---|
+| **Objective** | Pull review data from multiple public sources; bootstrap with curated seeds |
+| **Duration** | ~2 hours · ✅ Done (seed loaded; scrapers ready for first weekly run in E7) |
+| **Inputs** | iTunes RSS endpoints (5 storefronts), Play Store package ID `com.spotify.music` (6 storefronts), 100 hand-crafted seed records |
+| **Outputs** | Raw record streams from App Store + Play Store; 100 seed reviews in JSONL |
+| **Tools** | `requests` (iTunes RSS), `google-play-scraper`, JSONL |
+
+```mermaid
+flowchart LR
+    APP[Apple iTunes RSS<br/>5 storefronts × 8 pages] --> RAW[Raw record stream]
+    PLAY[google-play-scraper<br/>6 storefronts × 200] --> RAW
+    SEED[100 curated seed reviews<br/>🌱 transparently flagged] --> RAW
+```
+
+| Field | Value |
+|---|---|
+| **Files produced** | `src/scrapers/appstore.py`, `src/scrapers/playstore.py`, `data/seed/seed_reviews.jsonl` |
+| **Acceptance** | `[6]` smoke check (100 seed records loadable); scrapers callable with no exceptions |
+
+---
+
+### E2 — Normalization, Dedupe & Discovery-Relevance Filtering
+
+| Field | Value |
+|---|---|
+| **Objective** | Convert raw records into a canonical store; mark each review's discovery-relevance + canonical tags |
+| **Duration** | ~2 hours · ✅ Done |
+| **Inputs** | Raw record streams from E1 |
+| **Outputs** | `data/processed/reviews.jsonl` with `is_relevant`, `canonical_tags`, `features_mentioned` per record |
+| **Tools** | Groq Llama 3.1 8B Instant (cheap classifier), `tenacity` exponential backoff, Pydantic |
+
+```mermaid
+flowchart LR
+    RAW[Raw records] --> NORM[Normalize<br/>+ SHA-256 stable ID]
+    NORM --> DEDUPE[Dedupe by ID]
+    DEDUPE --> BATCH[Batch · 10 reviews/call]
+    BATCH --> GROQ[Groq 8B JSON mode<br/>relevance + canonical tags]
+    GROQ --> MERGE[Merge verdicts into Review]
+    MERGE --> JSONL[reviews.jsonl]
+```
+
+| Field | Value |
+|---|---|
+| **Files produced** | `src/pipeline/normalize.py`, `src/pipeline/relevance.py` |
+| **Acceptance** | 100 normalized → 97 classified discovery-relevant (verified) |
+
+---
+
+### E3 — Embeddings & Vector Indexing
+
+| Field | Value |
+|---|---|
+| **Objective** | Build a searchable semantic index from relevant reviews |
+| **Duration** | ~1 hour · ✅ Done |
+| **Inputs** | 97 relevant reviews from E2 |
+| **Outputs** | ChromaDB collection `spotify_reviews` at `data/chroma_db/` (97 vectors × 384 dim) |
+| **Tools** | `sentence-transformers/all-MiniLM-L6-v2` (local, CPU, ~50 records/sec), ChromaDB persistent client |
+
+```mermaid
+flowchart LR
+    REVIEWS[97 relevant reviews] --> CHUNK[Build text body<br/>title + body + features]
+    CHUNK --> EMB[MiniLM 384-dim<br/>normalized]
+    EMB --> META[Build metadata<br/>source · canonical_tags · features]
+    EMB --> UPSERT[Chroma upsert<br/>by stable ID]
+    META --> UPSERT
+    UPSERT --> CHROMA[(chroma_db/<br/>committed to repo)]
+```
+
+| Field | Value |
+|---|---|
+| **Files produced** | `src/pipeline/embed.py`, `data/chroma_db/` (sqlite + HNSW binaries) |
+| **Acceptance** | `[3]` and `[4]` smoke checks pass (384-dim vectors; count 97→98→97 round-trip) |
+
+---
+
+### E4 — RAG System (Scope · Retrieve · Answer · Precompute)
+
+| Field | Value |
+|---|---|
+| **Objective** | Serve grounded answers for the 6 canonical questions + a runtime endpoint for custom ones |
+| **Duration** | ~3 hours · ✅ Done |
+| **Inputs** | ChromaDB from E3; the 6 canonical question definitions from E0 |
+| **Outputs** | `data/insights/canonical_answers.json` (6 precomputed answers) + live RAG callable for custom questions |
+| **Tools** | Groq Llama 3.3 70B Versatile (high-quality synthesis), Groq 8B (scope borderline), MMR re-ranker, Pydantic structured output |
+
+```mermaid
+flowchart TB
+    Q[Question] --> SCOPE{Scope wrapper<br/>cosine + LLM hybrid}
+    SCOPE -->|out| REFUSE[Friendly refusal]
+    SCOPE -->|in| EMB[Embed query]
+    EMB --> SIM[Chroma top-25]
+    SIM --> MMR[MMR λ=0.7 → top-15]
+    MMR --> PROMPT[Build prompt:<br/>question + reviews + lexicon]
+    PROMPT --> GROQ[Groq 70B<br/>JSON-mode structured output]
+    GROQ --> ANS["RagAnswer<br/>answer · features · segments · confidence · cited IDs"]
+
+    PRE[Precompute loop<br/>for each canonical Q] --> Q
+    ANS --> JSON[canonical_answers.json]
+
+    style ANS fill:#1DB954,stroke:#fff,color:#191414
+```
+
+| Field | Value |
+|---|---|
+| **Files produced** | `src/rag/scope.py`, `src/rag/retrieve.py`, `src/rag/answer.py`, `src/rag/precompute.py`, `data/insights/canonical_answers.json` |
+| **Acceptance** | `[5]` smoke check (in=0.75, out=0.04 cosine); all 6 canonical answers populated in JSON |
+
+---
+
+### E5 — Streamlit Dashboard UI
+
+| Field | Value |
+|---|---|
+| **Objective** | Render every requirement (R1–R11) as a tab/widget a human can interact with |
+| **Duration** | ~3 hours · ✅ Done |
+| **Inputs** | `metadata.json` + `canonical_answers.json` + `reviews.jsonl` + ChromaDB |
+| **Outputs** | A 5-tab dashboard with Spotify-dark theme, metadata header, Excel downloads, paginated review evidence, scope-wrapped custom question box |
+| **Tools** | Streamlit, Plotly (theme bar charts), `openpyxl` + `xlsxwriter` (Excel export), custom CSS |
+
+```mermaid
+flowchart LR
+    META[metadata.json] --> HEADER[Metadata header<br/>last refresh · counts · downloads]
+    PRECOMP[canonical_answers.json] --> TAB1[Tab 1<br/>6 canonical Q cards]
+    CHROMA[(ChromaDB)] --> TAB2[Tab 2<br/>Ask Your Own + scope]
+    REVIEWS[reviews.jsonl] --> TAB3[Tab 3<br/>Themes & Segments]
+    DOCS[architecture.md] --> TAB4[Tab 4<br/>Architecture · 1-slider]
+    REVIEWS --> TAB5[Tab 5<br/>Raw Data + Excel]
+```
+
+| Field | Value |
+|---|---|
+| **Files produced** | `app/streamlit_app.py`, `.streamlit/config.toml` |
+| **Acceptance** | All 5 tabs render with seed data; Excel downloads produce valid `.xlsx`; review pagination works ("View More" loads next 5) |
+
+---
+
+### E6 — CI/CD (GitHub Actions weekly refresh)
+
+| Field | Value |
+|---|---|
+| **Objective** | Make the engine self-refresh weekly without human intervention |
+| **Duration** | ~1 hour · ✅ Built (first end-to-end run waits for E7) |
+| **Inputs** | A `main` branch on GitHub + the `GROQ_API_KEY` secret |
+| **Outputs** | Mondays at 02:00 UTC, the engine re-scrapes, re-classifies, re-embeds, re-precomputes, commits updated `data/` back to the repo |
+| **Tools** | GitHub Actions (free for public repos), `cron` syntax, `workflow_dispatch` for manual trigger |
+
+```mermaid
+flowchart LR
+    CRON[cron 02:00 UTC Mon] --> CHK[Checkout]
+    DISPATCH[workflow_dispatch<br/>manual] --> CHK
+    CHK --> SETUP[Setup Python 3.11<br/>+ pip cache]
+    SETUP --> INSTALL[Install requirements]
+    INSTALL --> RUN[python -m src.pipeline.refresh]
+    RUN --> COMMIT[git commit<br/>under bot identity]
+    COMMIT --> PUSH[git push → main]
+    PUSH --> REDEPLOY[Streamlit Cloud<br/>auto-redeploy]
+```
+
+| Field | Value |
+|---|---|
+| **Files produced** | `.github/workflows/refresh.yml`, `src/pipeline/refresh.py` |
+| **Acceptance** | Workflow file lints clean (`act --list` succeeds); first `workflow_dispatch` will be verified in E7 |
+
+---
+
+### E7 — Production Deployment
+
+| Field | Value |
+|---|---|
+| **Objective** | Get the engine live on the public internet, served via Streamlit Cloud, with weekly CI passing |
+| **Duration** | ~30 min · ⏳ Pending |
+| **Inputs** | Local repo at green state · GitHub PAT · Streamlit Cloud account · `GROQ_API_KEY` |
+| **Outputs** | Live public URL; weekly cron green; auto-redeploy on push |
+| **Tools** | GitHub PAT (interactive), Streamlit Community Cloud, GitHub Repo Settings → Secrets |
+
+**Steps:**
+1. `git push -u origin main` (authenticated with PAT)
+2. Add `GROQ_API_KEY` as a repo secret (GitHub → Settings → Secrets and variables → Actions)
+3. share.streamlit.io → New app → point at `app/streamlit_app.py` on `main`
+4. Add `GROQ_API_KEY` under "Advanced settings → Secrets" (TOML format: `GROQ_API_KEY = "gsk_..."`)
+5. Deploy; wait for first build (~3 min)
+6. Manually trigger the weekly workflow once (`Actions → Refresh → Run workflow`) to verify CI works
+7. Smoke-check the live URL in an incognito window
+
+| Field | Value |
+|---|---|
+| **Files touched** | None new; configuration in Streamlit Cloud + GitHub Settings |
+| **Acceptance** | Live URL renders the dashboard for an anonymous visitor; `workflow_dispatch` run completes with a green check |
+
+---
+
+### Engine phase dependency graph
+
+```mermaid
+flowchart LR
+    E0 --> E1 --> E2 --> E3 --> E4
+    E4 --> E5
+    E4 --> E6
+    E5 --> E7
+    E6 --> E7
+
+    classDef done fill:#1DB954,stroke:#fff,color:#191414
+    classDef pending fill:#2D5016,stroke:#1DB954,color:#fff
+    class E0,E1,E2,E3,E4,E5,E6 done
+    class E7 pending
+```
+
+Note that **E5 (UI) and E6 (CI) are parallelisable after E4** — they don't
+depend on each other. Both must complete before E7 (deploy).
+
+---
+
+## 3. Component-by-component walkthrough
 
 Every component below lists: **what it does · file · inputs · outputs · why this design**.
 
@@ -250,7 +503,7 @@ flowchart TD
 
 ---
 
-## 3. Data flow (end-to-end)
+## 4. Data flow (end-to-end)
 
 ```mermaid
 sequenceDiagram
@@ -299,7 +552,7 @@ sequenceDiagram
 
 ---
 
-## 4. File ↔ functional requirement matrix
+## 5. File ↔ functional requirement matrix
 
 | Requirement | Files |
 |---|---|
@@ -317,7 +570,7 @@ sequenceDiagram
 
 ---
 
-## 5. Key design decisions (and their justifications)
+## 6. Key design decisions (and their justifications)
 
 | Decision | Alternative considered | Why we chose this |
 |---|---|---|
@@ -333,7 +586,7 @@ sequenceDiagram
 
 ---
 
-## 6. Operating envelope
+## 7. Operating envelope
 
 | Dimension | v1 (now) | v2 (post-deck) |
 |---|---|---|
@@ -346,7 +599,7 @@ sequenceDiagram
 
 ---
 
-## 7. What this engine deliberately does *not* do
+## 8. What this engine deliberately does *not* do
 
 - **Does not answer questions about Spotify pricing, podcast bugs, login issues, etc.** — that's what the scope wrapper enforces.
 - **Does not invent insights.** Every claim ties to retrieved review IDs.
@@ -356,7 +609,7 @@ sequenceDiagram
 
 ---
 
-## 8. Where to start reading the code
+## 9. Where to start reading the code
 
 1. `doc/problemStatement.md` — the *why*
 2. `src/canonical.py` — the 6 questions, the contract

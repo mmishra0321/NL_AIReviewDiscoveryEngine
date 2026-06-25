@@ -1,0 +1,45 @@
+{
+  "last_refresh_utc": "2026-06-25T17:33:41.183977+00:00",
+  "total_normalized": 100,
+  "total_relevant": 97,
+  "by_source": {
+    "curated_seed": 100
+  },
+  "by_canonical_tag": {
+    "Q1_struggle": 51,
+    "Q2_frustrations": 18,
+    "Q5_segments": 10,
+    "Q3_jobs": 16,
+    "Q6_unmet": 10,
+    "Q4_repetition": 13
+  },
+  "feature_mention_counts": {
+    "Discover Weekly": 6,
+    "Daily Mix": 6,
+    "Liked Songs": 6,
+    "DJ": 4,
+    "Premium": 4,
+    "Playlists": 3,
+    "Release Radar": 3,
+    "On Repeat": 3,
+    "Home": 3,
+    "Spotify Wrapped": 3,
+    "Made For You": 3,
+    "Free Tier": 3,
+    "Ads": 3,
+    "Blend": 2,
+    "Search": 2,
+    "Queue": 2,
+    "Niche Mixes": 2,
+    "Enhance": 2,
+    "Daylist": 2,
+    "Connect": 2,
+    "AI Playlist": 2,
+    "Smart Shuffle": 1,
+    "Skip Limit (Free)": 1,
+    "Browse": 1,
+    "Autoplay": 1
+  },
+  "scrape_counts_this_run": {},
+  "chroma_collection_size": 97
+}

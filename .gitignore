@@ -37,3 +37,7 @@ data/raw/*.parquet
 # Build
 dist/
 build/
+
+# Debug screenshots and dev artifacts
+assets/streamlit_*.png
+assets/screenshot_*.png

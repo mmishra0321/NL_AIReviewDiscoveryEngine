@@ -24,11 +24,11 @@ from src.config import GROQ_API_KEY, SEED_PATH
 
 
 def passed(msg: str) -> None:
-    print(f"  ✓ {msg}")
+    print(f"  [PASS] {msg}")
 
 
 def failed(msg: str) -> None:
-    print(f"  ✗ {msg}")
+    print(f"  [FAIL] {msg}")
 
 
 def section(title: str) -> None:

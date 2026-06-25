@@ -1,0 +1,39 @@
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local scratch
+notebooks/.ipynb_checkpoints/
+*.log
+scratch/
+
+# Large local artifacts (Chroma DB IS committed; raw scraping caches are not)
+data/raw/cache/
+data/raw/*.parquet
+*.tmp
+
+# Build
+dist/
+build/

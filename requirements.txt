@@ -1,0 +1,29 @@
+# --- Core ---
+python-dotenv>=1.0.1
+pydantic>=2.7.0
+tenacity>=8.2.3
+tqdm>=4.66.4
+
+# --- LLM (Groq) ---
+groq>=0.11.0
+
+# --- Embeddings & Vector store ---
+sentence-transformers>=3.0.1
+chromadb>=0.5.5
+
+# --- Scraping ---
+google-play-scraper>=1.2.7
+praw>=7.7.1
+requests>=2.32.3
+beautifulsoup4>=4.12.3
+
+# --- Pipeline ---
+pandas>=2.2.2
+numpy>=1.26.4
+scikit-learn>=1.5.1
+
+# --- UI ---
+streamlit>=1.36.0
+plotly>=5.22.0
+openpyxl>=3.1.5
+xlsxwriter>=3.2.0

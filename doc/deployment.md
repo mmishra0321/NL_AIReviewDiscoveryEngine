@@ -79,15 +79,21 @@ auto-refresh loop:
 To verify: after the first manual Action run, refresh your Streamlit URL.
 The "Last refresh" pill in the header should show the new timestamp.
 
-## 5. Known constraints (free tier)
+## 5. Known constraints (free tier) — and our guardrails
 
-| Component | Limit | What we do |
+| Component | Free-tier limit | Our guardrail |
 |---|---|---|
-| Groq Llama 3.1 8B Instant | ~30 RPM | tenacity retries with exponential backoff |
-| Groq Llama 3.3 70B Versatile | ~30 RPM | only 6 calls per refresh (one per canonical Q) |
-| Streamlit Cloud free | 1GB RAM, 1 CPU, sleeps after inactivity | adequate for our app |
-| GitHub Actions free | 2,000 mins/month for private; unlimited for public | a refresh run uses ~10 mins → fine |
-| ChromaDB committed to repo | ~5 MB for 1,000 reviews | safely under GitHub's 100 MB soft limit |
+| Groq Llama 3.1 8B Instant (classifier) | ~30 RPM, ~6k TPM, 14.4k RPD | Process-wide throttle (`GROQ_MIN_INTERVAL_SECONDS = 13`); compact prompt (~226 sys + 700 max-tok); tenacity exponential backoff on any residual 429 |
+| Groq Llama 3.3 70B Versatile (synth) | ~30 RPM, ~12k TPM | Only 6 calls per refresh (one per canonical Q) + 13 s throttle |
+| Number of reviews entering the LLM | n/a | **Hard cap of 1000** via `MAX_REVIEWS_TO_CLASSIFY` with per-source budgets (curated 100 / app 400 / play 350 / youtube 150). Defined in `src/config.py`. |
+| Streamlit Cloud free | 1 GB RAM, 1 CPU, sleeps after inactivity | Adequate; first cold start ~25 s while sentence-transformers downloads |
+| GitHub Actions free | 2,000 min/mo private; unlimited public | Refresh job ~12 min (incl. ~5 min Groq classify) → comfortably within quota |
+| ChromaDB committed to repo | ~5 MB for 1,000 reviews | Tracked in git so the deployed app reads from disk on cold start (no re-embedding) |
+
+> **Why the 1000-review cap?** Without it, a 5,000-review refresh would burn
+> through Groq's free tier in a single run. With the cap + per-source budget +
+> throttle, a full refresh now uses ~60k tokens of the 1M daily quota (6%) —
+> leaving plenty of headroom for live `/api/ask` calls and emergency reruns.
 
 If you ever hit the Streamlit Cloud memory limit, the first culprit will be
 the sentence-transformers model. Mitigation: switch `EMBED_MODEL` in

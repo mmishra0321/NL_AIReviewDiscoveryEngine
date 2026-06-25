@@ -78,8 +78,13 @@ st.markdown(
         border-radius: 12px;
         padding: 16px 18px;
         height: 100%;
+        transition: border-color .15s ease, background .15s ease;
     }}
     .qcard:hover {{ border-color: {SPOTIFY_GREEN}; }}
+    .qcard-selected {{
+        background: #1E2F22 !important;
+        border-color: {SPOTIFY_GREEN} !important;
+    }}
     .review-card {{
         background: #1C1C1C;
         border-left: 3px solid {SPOTIFY_GREEN};
@@ -444,48 +449,62 @@ tab_questions, tab_custom, tab_themes, tab_arch, tab_raw = st.tabs(
 # ---- Tab: Canonical Questions ----
 with tab_questions:
     st.subheader("Answers grounded in real user reviews (RAG)")
-    st.caption("Each answer is pre-computed at refresh time and cites supporting review evidence.")
+    st.caption("Click any card to read the full synthesis and the supporting reviews.")
 
     answers = canon.get("answers", {})
 
-    # Card grid - 2 columns of 3
+    if "selected_canonical_id" not in st.session_state:
+        st.session_state["selected_canonical_id"] = None
+    selected_id = st.session_state["selected_canonical_id"]
+
     cols = st.columns(3)
     for idx, q in enumerate(CANONICAL_QUESTIONS):
         a = answers.get(q.id)
+        is_selected = (selected_id == q.id)
+        card_class = "qcard qcard-selected" if is_selected else "qcard"
         with cols[idx % 3]:
-            with st.container(border=False):
-                st.markdown(
-                    f"""<div class="qcard">
-                        <h4 style="color:{SPOTIFY_GREEN};margin:0 0 8px 0;">Q{idx+1}</h4>
-                        <p style="margin:0 0 8px 0;font-weight:600;">{q.short}</p>
-                        <p style="color:{SPOTIFY_GRAY};font-size:13px;">{q.full}</p>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
-                if a is None:
-                    st.warning("Not yet computed (run refresh).")
+            st.markdown(
+                f"""<div class="{card_class}">
+                    <h4 style="color:{SPOTIFY_GREEN};margin:0 0 8px 0;">Q{idx+1}</h4>
+                    <p style="margin:0 0 8px 0;font-weight:600;">{q.short}</p>
+                    <p style="color:{SPOTIFY_GRAY};font-size:13px;margin-bottom:10px;">{q.full}</p>
+                </div>""",
+                unsafe_allow_html=True,
+            )
+            if a is None:
+                st.button("Not computed yet", key=f"open_{q.id}", disabled=True,
+                          use_container_width=True)
+            else:
+                btn_label = "Showing this answer below ↓" if is_selected else "View answer & reviews →"
+                if st.button(btn_label, key=f"open_{q.id}", use_container_width=True,
+                             type="primary" if is_selected else "secondary"):
+                    st.session_state["selected_canonical_id"] = None if is_selected else q.id
+                    st.rerun()
 
     st.markdown("---")
-    chosen_label = st.selectbox(
-        "Expand a question:",
-        [f"Q{i+1}: {q.short}" for i, q in enumerate(CANONICAL_QUESTIONS)],
-        index=0,
-    )
-    chosen_id = CANONICAL_QUESTIONS[int(chosen_label.split(":")[0][1:]) - 1].id
-    a = answers.get(chosen_id)
-    if not a:
-        st.info("No precomputed answer yet. Run `python -m src.pipeline.refresh` first.")
+
+    selected_id = st.session_state["selected_canonical_id"]
+    if not selected_id:
+        st.info("Click any card above to expand the synthesized answer with its supporting reviews.")
     else:
-        st.markdown(f"### {a['question_full']}")
-        render_answer_with_reviews(
-            answer_text=a["answer"],
-            features=a.get("spotify_features_mentioned", []),
-            segments=a.get("user_segments_affected", []),
-            confidence=a.get("confidence", "medium"),
-            review_ids=a.get("review_ids", []),
-            df=df_reviews,
-            state_key=f"canon_{chosen_id}",
-        )
+        a = answers.get(selected_id)
+        if not a:
+            st.warning("No precomputed answer for this question yet. Run `python -m src.pipeline.refresh` first.")
+        else:
+            head_cols = st.columns([6, 1])
+            head_cols[0].markdown(f"### {a['question_full']}")
+            if head_cols[1].button("✕ Close", key="close_canonical", use_container_width=True):
+                st.session_state["selected_canonical_id"] = None
+                st.rerun()
+            render_answer_with_reviews(
+                answer_text=a["answer"],
+                features=a.get("spotify_features_mentioned", []),
+                segments=a.get("user_segments_affected", []),
+                confidence=a.get("confidence", "medium"),
+                review_ids=a.get("review_ids", []),
+                df=df_reviews,
+                state_key=f"canon_{selected_id}",
+            )
 
 # ---- Tab: Custom Question ----
 with tab_custom:

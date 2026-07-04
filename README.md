@@ -1,6 +1,11 @@
 # 01 · Spotify Discovery Pain — AI Review Discovery Engine
 
+[![Live App](https://img.shields.io/badge/live%20app-streamlit-1DB954?logo=streamlit&logoColor=white&labelColor=191414)](https://nl-spotify-discovery-pml.streamlit.app/)
+[![Weekly Refresh](https://github.com/mmishra0321/NL_AIReviewDiscoveryEngine/actions/workflows/refresh.yml/badge.svg)](https://github.com/mmishra0321/NL_AIReviewDiscoveryEngine/actions/workflows/refresh.yml)
+
 > Part 1 of a 3-folder capstone PM project on Spotify music discovery. An AI-native workflow that mines Spotify user feedback at scale to surface **why discovery feels broken** — even with world-class recommendation infrastructure.
+
+**🎧 Live dashboard:** [`https://nl-spotify-discovery-pml.streamlit.app/`](https://nl-spotify-discovery-pml.streamlit.app/) — auto-redeploys every Monday after the GitHub Actions refresh.
 
 **Sibling folders**
 
@@ -336,4 +341,4 @@ The FastAPI + React SPA can additionally be deployed as two services (backend on
 
 ---
 
-**Live URL:** _pending Streamlit Cloud deploy — see [`doc/deployment.md`](./doc/deployment.md)._
+**Live URL:** [`https://nl-spotify-discovery-pml.streamlit.app/`](https://nl-spotify-discovery-pml.streamlit.app/) — deployed via Streamlit Community Cloud, auto-redeployed on every push to `main`.

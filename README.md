@@ -1,11 +1,19 @@
 # 01 · Spotify Discovery Pain — AI Review Discovery Engine
 
-[![Live App](https://img.shields.io/badge/live%20app-streamlit-1DB954?logo=streamlit&logoColor=white&labelColor=191414)](https://nl-spotify-discovery-pml.streamlit.app/)
+[![Streamlit App](https://img.shields.io/badge/streamlit-live-1DB954?logo=streamlit&logoColor=white&labelColor=191414)](https://nl-spotify-discovery-pml.streamlit.app/)
+[![React SPA](https://img.shields.io/badge/react%20SPA-live-1DB954?logo=vercel&logoColor=white&labelColor=191414)](https://nl-ai-review-discovery-engine.vercel.app/)
+[![API](https://img.shields.io/badge/API-live-1DB954?logo=fastapi&logoColor=white&labelColor=191414)](https://nlaireviewdiscoveryengine-production.up.railway.app/api/health)
 [![Weekly Refresh](https://github.com/mmishra0321/NL_AIReviewDiscoveryEngine/actions/workflows/refresh.yml/badge.svg)](https://github.com/mmishra0321/NL_AIReviewDiscoveryEngine/actions/workflows/refresh.yml)
 
 > Part 1 of a 3-folder capstone PM project on Spotify music discovery. An AI-native workflow that mines Spotify user feedback at scale to surface **why discovery feels broken** — even with world-class recommendation infrastructure.
 
-**🎧 Live dashboard:** [`https://nl-spotify-discovery-pml.streamlit.app/`](https://nl-spotify-discovery-pml.streamlit.app/) — auto-redeploys every Monday after the GitHub Actions refresh.
+**🎧 Live surfaces**
+
+| Surface | URL | Host | Purpose |
+|---|---|---|---|
+| Streamlit dashboard | [`nl-spotify-discovery-pml.streamlit.app`](https://nl-spotify-discovery-pml.streamlit.app/) | Streamlit Community Cloud | Zero-ops fallback UI, auto-redeploys on every push to `main` |
+| React SPA (Vercel) | [`nl-ai-review-discovery-engine.vercel.app`](https://nl-ai-review-discovery-engine.vercel.app/) | Vercel | Primary UI, richer interactions, hits the API below |
+| FastAPI backend | [`.../api/health`](https://nlaireviewdiscoveryengine-production.up.railway.app/api/health) | Railway | Serves the SPA; caches precomputed answers + Chroma retrieval |
 
 **Sibling folders**
 
@@ -309,16 +317,50 @@ You can also trigger it manually from **Actions → Weekly Review Refresh → Ru
 
 > **Why the 1,000-review cap?** Without it, a 5 k-review refresh would burn through Groq's daily quota in one run. With cap + per-source budget + throttle, a full refresh uses roughly **~60 k tokens** of the 1 M daily quota (~6 %) — leaving plenty of headroom for live `/api/ask` traffic and emergency reruns.
 
-## 12. Deploy
+## 12. Deploy — how the live surfaces are wired
 
-The zero-ops path (documented in [`doc/deployment.md`](./doc/deployment.md)) is:
+This repo is deployed to three hosts at once. All three redeploy automatically on every push to `main` (Streamlit and Vercel via git integration; Railway via the same). Reproducing the deploy takes ~30 min end-to-end.
 
-1. Push to `main` on GitHub · `mmishra0321/NL_AIReviewDiscoveryEngine`
-2. Add `GROQ_API_KEY` to **Actions → Secrets** and enable **Read and write permissions** for workflows
-3. On **share.streamlit.io**, deploy `app/streamlit_app.py` from `main` with `GROQ_API_KEY` in the app's TOML secrets
-4. Trigger `Weekly Review Refresh` once manually to prove the CI loop is green
+### 12.1 GitHub Actions (one-time repo config)
 
-The FastAPI + React SPA can additionally be deployed as two services (backend on Render/Railway/Fly, frontend on Vercel/Netlify), but the Streamlit route is what the deployment doc walks through step-by-step.
+1. `Settings → Secrets and variables → Actions` → add `GROQ_API_KEY`
+2. `Settings → Actions → Workflow permissions` → **Read and write permissions**
+3. `Actions → Weekly Review Refresh → Run workflow` (with `seed_only=true` for a fast verification) — proves the CI loop is green
+
+### 12.2 Streamlit Community Cloud — [`app/streamlit_app.py`](./app/streamlit_app.py)
+
+1. https://share.streamlit.io → sign in with GitHub → **Create app** → deploy `app/streamlit_app.py` from `main`
+2. Advanced settings → Secrets → `GROQ_API_KEY = "gsk_..."`
+3. Get a URL like `https://<slug>.streamlit.app` — done
+
+Cold start ~25 s the first time (`sentence-transformers` unpack). Free-tier constraints in §11.
+
+### 12.3 Railway — FastAPI backend ([`backend/main.py`](./backend/main.py))
+
+The FastAPI backend needs more than 512 MB RAM because it loads `torch` + `chromadb` + `sentence-transformers` in the same process. Render's free tier caps at 512 MB and OOM-kills the container; Railway's Hobby plan gives 1 GB for ~$5/mo in effective usage costs.
+
+1. https://railway.app → sign in with GitHub → **New Project → Deploy from GitHub repo**
+2. The repo's [`railway.json`](./railway.json) + [`Procfile`](./Procfile) + [`runtime.txt`](./runtime.txt) auto-configure the build (Nixpacks + Python 3.11 + uvicorn on `$PORT` + `/api/health` health check)
+3. Service **Settings → Resources → Memory Limit: 1 GB** *(critical — 512 MB will OOM during import)*
+4. Service **Variables** → `GROQ_API_KEY = gsk_...`
+5. Service **Settings → Networking → Generate Domain** → get URL like `https://<slug>.up.railway.app`
+
+### 12.4 Vercel — React SPA ([`frontend/`](./frontend/))
+
+1. https://vercel.com → sign in with GitHub → **Add New → Project → Import** the repo
+2. Configure Project:
+   - **Root Directory:** `frontend` *(critical — Vercel defaults to repo root)*
+   - **Framework Preset:** Vite (auto-detected)
+   - **Environment Variables:** `VITE_API_BASE = <your Railway URL>`
+3. Deploy → get URL like `https://<slug>.vercel.app`
+
+Vite bakes `VITE_API_BASE` into the bundle at build time — changing it later requires a redeploy from the Vercel dashboard.
+
+### 12.5 Alternative hosts
+
+The repo also ships a [`render.yaml`](./render.yaml) blueprint for Render (works on Standard $25/mo or higher — see §11 for the RAM story) and can be adapted to Fly.io's free tier (needs a `Dockerfile` + `fly.toml`; a 1 GB shared-cpu-1x machine sits comfortably within Fly's $5/mo free credit).
+
+For the fullest walk-through with screenshots, see [`doc/deployment.md`](./doc/deployment.md).
 
 ## 13. What this engine deliberately does *not* do
 
@@ -341,4 +383,8 @@ The FastAPI + React SPA can additionally be deployed as two services (backend on
 
 ---
 
-**Live URL:** [`https://nl-spotify-discovery-pml.streamlit.app/`](https://nl-spotify-discovery-pml.streamlit.app/) — deployed via Streamlit Community Cloud, auto-redeployed on every push to `main`.
+**Live surfaces (all auto-redeploy on every push to `main`):**
+
+- Streamlit dashboard — [`nl-spotify-discovery-pml.streamlit.app`](https://nl-spotify-discovery-pml.streamlit.app/)
+- React SPA on Vercel — [`nl-ai-review-discovery-engine.vercel.app`](https://nl-ai-review-discovery-engine.vercel.app/)
+- FastAPI backend on Railway — [`.../api/health`](https://nlaireviewdiscoveryengine-production.up.railway.app/api/health)

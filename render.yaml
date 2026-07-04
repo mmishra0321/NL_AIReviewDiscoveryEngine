@@ -1,0 +1,41 @@
+# Render.com Blueprint
+# ------------------------------------------------------------
+# Deploys the FastAPI backend (backend/main.py) as a free
+# Web Service. The React SPA is deployed separately on Vercel
+# (or Netlify / Cloudflare Pages) and points at this service
+# via VITE_API_BASE.
+#
+# Usage: on https://dashboard.render.com, click
+#   "New +" -> "Blueprint" -> connect this repo -> Apply
+# Render will read this file and provision the service.
+#
+# Free-tier notes:
+# - Service sleeps after 15 min of inactivity.
+# - First request after sleep incurs a ~30 s cold start
+#   because the container has to boot and load
+#   sentence-transformers + ChromaDB.
+# - 750 hours/month free = enough for one always-on service.
+#
+# Environment variables you must set in the Render UI after
+# the first apply (Render will not read secrets from this file):
+#   - GROQ_API_KEY   (get from console.groq.com, same value
+#                    as your local .env / Streamlit secret)
+
+services:
+  - type: web
+    name: spotify-review-engine-api
+    runtime: python
+    plan: free
+    region: oregon                 # closest US region; change to `frankfurt` or
+                                   # `singapore` if you want lower latency for
+                                   # India/EU reviewers
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: GROQ_API_KEY
+        sync: false                # ← set this manually in the Render dashboard;
+                                   #   never commit the key.

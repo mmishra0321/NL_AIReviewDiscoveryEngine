@@ -9,6 +9,7 @@ CORS is also enabled wide-open in dev so direct fetches work too.
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -39,9 +40,31 @@ app = FastAPI(
     ),
 )
 
+# CORS policy
+# ------------------------------------------------------------
+# Local dev (Vite on :5173) and the deployed Vercel frontend both
+# need to talk to this API. We accept:
+#   - the Vite dev origin
+#   - any `*.vercel.app` preview / production deploy of the SPA
+#   - any `*.streamlit.app` (in case the Streamlit fallback ever
+#     shells out to this backend, e.g. for /api/actions)
+# The wildcard `*` fallback is retained via an env-var override
+# so a reviewer can flip it back on if they add a new host.
+_default_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://nl-spotify-discovery-pml.streamlit.app",
+]
+_extra_origins = [
+    o.strip()
+    for o in (os.environ.get("EXTRA_CORS_ORIGINS", "").split(","))
+    if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],            # dev: any origin. Tighten before deploy.
+    allow_origin_regex=r"^https://.*\.(vercel\.app|netlify\.app|pages\.dev)$",
+    allow_origins=_default_origins + _extra_origins,
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=False,

@@ -65,7 +65,8 @@ function Header() {
             <ExternalLink className="w-3.5 h-3.5" /> repo
           </a>
           <a className="text-fg-muted hover:text-fg inline-flex items-center gap-1"
-             href="/api/health" target="_blank" rel="noreferrer">
+             href={`${(import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "")}/api/health`}
+             target="_blank" rel="noreferrer">
             <ExternalLink className="w-3.5 h-3.5" /> API
           </a>
         </div>

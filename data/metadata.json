@@ -1,51 +1,51 @@
 {
-  "last_refresh_utc": "2026-07-13T05:54:35.758653+00:00",
+  "last_refresh_utc": "2026-07-20T05:57:08.328002+00:00",
   "total_normalized": 1000,
-  "total_relevant": 391,
+  "total_relevant": 392,
   "by_source": {
     "curated_seed": 100,
-    "play_store": 299,
-    "app_store": 426,
-    "youtube": 175
+    "play_store": 322,
+    "app_store": 142,
+    "youtube": 436
   },
   "by_canonical_tag": {
-    "Q2_frustrations": 139,
-    "Q3_jobs": 153,
-    "Q5_segments": 23,
+    "Q2_frustrations": 98,
+    "Q3_jobs": 169,
+    "Q5_segments": 30,
     "Q6_unmet": 32,
-    "Q4_repetition": 68,
-    "Q1_struggle": 23
+    "Q4_repetition": 73,
+    "Q1_struggle": 34
   },
   "feature_mention_counts": {
-    "Premium": 38,
-    "Ads": 32,
-    "Discover Weekly": 20,
-    "Playlists": 15,
-    "Podcasts": 11,
-    "Daily Mix": 8,
-    "Release Radar": 8,
-    "DJ": 8,
+    "Discover Weekly": 29,
+    "Ads": 18,
+    "Premium": 18,
+    "DJ": 12,
+    "Playlists": 10,
+    "Release Radar": 9,
     "Liked Songs": 8,
     "Queue": 8,
-    "Search": 6,
-    "Spotify Wrapped": 6,
-    "Free Tier": 6,
-    "On Repeat": 5,
-    "Smart Shuffle": 4,
+    "Daily Mix": 7,
+    "Spotify Wrapped": 7,
+    "Podcasts": 7,
+    "Search": 4,
+    "On Repeat": 4,
+    "Smart Shuffle": 3,
     "Daylist": 3,
     "Home": 3,
     "Made For You": 3,
-    "Blend": 3,
-    "Jam": 3,
-    "Skip Limit (Free)": 2,
-    "Browse": 2,
+    "Connect": 3,
     "Autoplay": 2,
     "Niche Mixes": 2,
-    "Enhance": 2
+    "Enhance": 2,
+    "Free Tier": 2,
+    "AI Playlist": 2,
+    "Lyrics": 2,
+    "Skip Limit (Free)": 1
   },
   "scrape_counts_this_run": {
     "play_store": 830,
-    "app_store": 850
+    "app_store": 150
   },
-  "chroma_collection_size": 1059
+  "chroma_collection_size": 1188
 }

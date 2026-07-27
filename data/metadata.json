@@ -1,51 +1,51 @@
 {
-  "last_refresh_utc": "2026-07-20T05:57:08.328002+00:00",
+  "last_refresh_utc": "2026-07-27T06:07:07.457451+00:00",
   "total_normalized": 1000,
-  "total_relevant": 392,
+  "total_relevant": 417,
   "by_source": {
     "curated_seed": 100,
-    "play_store": 322,
-    "app_store": 142,
-    "youtube": 436
+    "play_store": 304,
+    "app_store": 50,
+    "youtube": 546
   },
   "by_canonical_tag": {
-    "Q2_frustrations": 98,
-    "Q3_jobs": 169,
-    "Q5_segments": 30,
-    "Q6_unmet": 32,
-    "Q4_repetition": 73,
-    "Q1_struggle": 34
+    "Q2_frustrations": 110,
+    "Q3_jobs": 208,
+    "Q5_segments": 36,
+    "Q6_unmet": 50,
+    "Q4_repetition": 84,
+    "Q1_struggle": 35
   },
   "feature_mention_counts": {
-    "Discover Weekly": 29,
+    "Discover Weekly": 30,
     "Ads": 18,
     "Premium": 18,
-    "DJ": 12,
+    "DJ": 14,
     "Playlists": 10,
-    "Release Radar": 9,
+    "Release Radar": 10,
     "Liked Songs": 8,
-    "Queue": 8,
     "Daily Mix": 7,
-    "Spotify Wrapped": 7,
     "Podcasts": 7,
-    "Search": 4,
+    "Queue": 6,
+    "Spotify Wrapped": 6,
+    "Daylist": 4,
     "On Repeat": 4,
-    "Smart Shuffle": 3,
-    "Daylist": 3,
     "Home": 3,
+    "Autoplay": 3,
     "Made For You": 3,
-    "Connect": 3,
-    "Autoplay": 2,
+    "Blend": 3,
+    "Audiobooks": 3,
+    "Smart Shuffle": 2,
+    "Search": 2,
     "Niche Mixes": 2,
     "Enhance": 2,
     "Free Tier": 2,
-    "AI Playlist": 2,
-    "Lyrics": 2,
-    "Skip Limit (Free)": 1
+    "Connect": 2,
+    "AI Playlist": 2
   },
   "scrape_counts_this_run": {
     "play_store": 830,
-    "app_store": 150
+    "app_store": 50
   },
-  "chroma_collection_size": 1188
+  "chroma_collection_size": 1323
 }

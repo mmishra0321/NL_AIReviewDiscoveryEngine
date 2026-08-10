@@ -1,33 +1,29 @@
 {
-  "generated_at": "2026-08-03T05:58:44.536044+00:00",
+  "generated_at": "2026-08-10T04:09:37.999439+00:00",
   "answers": {
     "Q1_struggle": {
       "question_id": "Q1_struggle",
       "question_full": "Why do users struggle to discover new music on Spotify?",
       "question_short": "Why discovery struggles",
-      "answer": "Users struggle to discover new music on Spotify due to limitations in the algorithmic_playlist feature, particularly for non-English or niche genres. The discovery_surface, such as Home and Browse, may not effectively surface new music, and the abundance of ads on the Free Tier can disrupt the listening experience. Some users feel that the service has stopped innovating on discovery, relying on its past reputation. Regional and language-based user segments, such as Indian or Brazilian users, may be disproportionately affected.",
+      "answer": "Users struggle to discover new music on Spotify due to limitations in the algorithmic recommendation system, particularly for non-English or niche genres. The 'Discover Weekly' and 'Daily Mix' features are not mentioned, but the lack of innovation in discovery and the treatment of live versions, demos, and covers as separate releases contribute to the issue. Additionally, the restrictive free tier experience with ads and limited skips may also hinder discovery. Regional users, such as those interested in Korean indie or Brazilian jazz, may find the recommendations to be static and unhelpful.",
       "spotify_features_mentioned": [
-        "algorithmic_playlist",
-        "discovery_surface",
         "Ads",
-        "Free Tier",
-        "Premium",
-        "Queue"
+        "Queue",
+        "Premium"
       ],
       "user_segments_affected": [
-        "regional_indian",
-        "regional_brazilian",
+        "regional_non_english",
         "free_tier",
-        "non_english"
+        "niche_genre"
       ],
       "confidence": "medium",
       "review_ids": [
         "75da3e66453a1ae8",
         "c7b8213bdf1f9cb2",
         "5c5c6a22dce683bd",
-        "b24d3406dcf2174a",
         "e112f33367482137",
         "000cda64ab75a30e",
+        "b24d3406dcf2174a",
         "7a284d80cac46666"
       ]
     },
@@ -35,11 +31,14 @@
       "question_id": "Q2_frustrations",
       "question_full": "What are the most common frustrations with Spotify's recommendations?",
       "question_short": "Recommendation frustrations",
-      "answer": "The most common frustrations with Spotify's recommendations include the lack of control over automatic recommendations in the free version, the inability to dislike a song, and the prevalence of unwanted songs in playlists. Some users also feel that the algorithmic playlists are prioritized over curated selections, and that the ads in the free version are too frequent and intrusive. Additionally, some users have reported that the recommendations are no longer personalized and that the app has become less user-friendly over time.",
+      "answer": "The most common frustrations with Spotify's recommendations include the lack of control over automatic recommendations, particularly in the free version, and the repetition of the same songs. Users also express dissatisfaction with the algorithmic playlists, citing that they often play the same songs and fail to introduce new music. Some users feel that the recommendations are not personalized and do not reflect their musical tastes. Additionally, the presence of ads, especially in the free version, is a significant frustration for many users.",
       "spotify_features_mentioned": [
         "AI Playlist",
         "Free Tier",
-        "Ads"
+        "Ads",
+        "Liked Songs",
+        "Podcasts",
+        "Search"
       ],
       "user_segments_affected": [
         "free",
@@ -47,33 +46,33 @@
       ],
       "confidence": "medium",
       "review_ids": [
+        "8537832da322069e",
         "661f40c3af98e041",
         "c7966131f78c8e73",
-        "b24d3406dcf2174a",
+        "6f114a2b36269e7a",
         "1bd71a23dfd8b567",
-        "e8dcc0a6ad1032fd",
-        "310cff4b96d5ae40",
-        "8537832da322069e",
+        "e06889c67c69c208",
+        "b24d3406dcf2174a",
         "aaa90e0877699fbd",
-        "8dc9d4efecdcaa2f",
         "263604e7930a773e",
         "c0f770487796778f",
+        "8dc9d4efecdcaa2f",
         "c24381c52cf7d52a",
-        "e368331ef17a00fd",
-        "cdf36511abde9d8f",
-        "66b8d3c7c160f246"
+        "e8dcc0a6ad1032fd",
+        "df2f63ba576c0246",
+        "e368331ef17a00fd"
       ]
     },
     "Q3_jobs": {
       "question_id": "Q3_jobs",
       "question_full": "What listening behaviours are users trying to achieve?",
       "question_short": "Listening jobs-to-be-done",
-      "answer": "Users are trying to achieve easy and personalized listening experiences, with the ability to choose and discover new music, podcasts, and playlists. They value features like algorithmic playlists, DJ mode, and podcast recommendations. Some users want to listen to specific songs or artists, while others enjoy discovering new content through features like Daily Mix and Radio. Users also appreciate the app's ability to learn their listening patterns and provide tailored recommendations.",
+      "answer": "Users are trying to achieve easy and personalized listening experiences, with access to various genres and playlists. They want to discover new music, listen to their favorite songs, and enjoy a seamless playback experience. Some users also value features like DJ and podcast functionality, while others appreciate the app's ability to learn their listening patterns and provide tailored recommendations.",
       "spotify_features_mentioned": [
         "DJ",
+        "Podcasts",
         "Daily Mix",
-        "Liked Songs",
-        "Podcasts"
+        "Liked Songs"
       ],
       "user_segments_affected": [
         "premium",
@@ -86,15 +85,15 @@
         "f930e0fedf16b2e8",
         "a953087c3c15af05",
         "a72a5b05fa1ee96f",
-        "eb6e6251bda3f513",
         "99797fbc3a989bde",
+        "eb6e6251bda3f513",
         "4fcddb73f3553e9b",
         "ceed8a482678b5a6",
         "830875873c1864e6",
         "de6d9a6fbc578238",
         "4c0e31e69bbb3093",
         "bd92362f8d0dab92",
-        "28585bcee2a26eba",
+        "1101e30b3595c195",
         "6fcd7ecde1e07fa6",
         "606b490e022d2d99"
       ]
@@ -103,14 +102,12 @@
       "question_id": "Q4_repetition",
       "question_full": "What causes users to repeatedly listen to the same content on Spotify?",
       "question_short": "Causes of repeat-listening",
-      "answer": "Users repeatedly listen to the same content on Spotify due to the algorithm's tendency to play the same songs over and over, even when using features like Shuffle or Smart Shuffle. This issue is experienced by both free and premium users, and is not limited to specific playlists or libraries. The algorithm seems to prioritize playing songs that are similar to each other, rather than providing a truly random shuffle.",
+      "answer": "Users repeatedly listen to the same content on Spotify due to issues with the shuffle feature, which often plays the same songs in the same order. This problem is experienced by both free and premium users, with some premium users expecting a better experience. The algorithm seems to prioritize playing similar songs or songs from the same artists, rather than providing a truly random shuffle. This leads to frustration, especially for users with large playlists who want to discover new music.",
       "spotify_features_mentioned": [
-        "Shuffle",
-        "Smart Shuffle",
         "AI Playlist",
+        "Smart Shuffle",
         "Queue",
         "Liked Songs",
-        "Playlists",
         "Premium",
         "Audiobooks"
       ],
@@ -127,31 +124,28 @@
         "afc06801c182ee61",
         "0015b94b7b147bd8",
         "fb403a05fd274568",
+        "cfaf001fe82a82b9",
         "dc5ce4657524f4a6",
-        "586d8807531df64b",
-        "680cdd2b2b07671d",
         "f02ade4051aa41f7",
         "cd5f3d8b21158ab9",
+        "531024a8ce6d5846",
         "6940589fb5932538",
-        "704ef14e9ab32869",
-        "40464a080f585855"
+        "6f6b8f004875d540",
+        "704ef14e9ab32869"
       ]
     },
     "Q5_segments": {
       "question_id": "Q5_segments",
       "question_full": "Which user segments experience different discovery challenges?",
       "question_short": "Segment differences",
-      "answer": "Users in non-Tier 1 countries and those with eclectic music tastes experience different discovery challenges. The former may face limited access to features like Discover Weekly, while the latter encounter 'genre walls' due to binary algorithmic recommendations. Additionally, some users enjoy discovering new artists through artist playlists and genre-hopping.",
-      "spotify_features_mentioned": [
-        "Discover Weekly"
-      ],
+      "answer": "Users who enjoy multiple genres, such as prog rock and hip-hop, experience discovery challenges due to algorithmic limitations. In contrast, users who explore artist playlists can discover new artists and genres through a 'rabbit hole' effect, indicating different discovery challenges for users with eclectic tastes versus those who follow specific artists.",
+      "spotify_features_mentioned": [],
       "user_segments_affected": [
-        "regional_non_tier1",
-        "eclectic_taste"
+        "eclectic_taste",
+        "genre_hoppers"
       ],
       "confidence": "medium",
       "review_ids": [
-        "fc0073cb2a357a63",
         "a31b1b2a24d3d210",
         "d353affcebbdda76"
       ]
@@ -160,7 +154,7 @@
       "question_id": "Q6_unmet",
       "question_full": "What unmet needs emerge consistently across reviews?",
       "question_short": "Unmet needs",
-      "answer": "Users express unmet needs for transparency in music recommendations, desire for more serendipity in music discovery, and a need for control over the level of discovery. They want to know why a song was recommended and to be able to indicate a preference for new, unheard music. The current algorithmic playlists are seen as too safe and not effectively promoting new music or artists.",
+      "answer": "Users express unmet needs for transparency in algorithmic recommendations, desire for more serendipity in music discovery, and a need for control over discovery intensity. Some users feel that the current recommendation system is too safe and doesn't introduce them to new music. Additionally, users are dissatisfied with the presence of ads in podcasts and the perceived prioritization of algorithmic playlists over curated selections.",
       "spotify_features_mentioned": [
         "algorithmic_playlist",
         "Ads",
@@ -168,7 +162,8 @@
       ],
       "user_segments_affected": [
         "premium",
-        "casual"
+        "casual",
+        "heavy"
       ],
       "confidence": "medium",
       "review_ids": [
@@ -176,7 +171,8 @@
         "5211f77b5917a4ba",
         "569629d222fc645e",
         "e8dcc0a6ad1032fd",
-        "8cc5cfc5aefae7e5"
+        "8cc5cfc5aefae7e5",
+        "b12843d037110c19"
       ]
     }
   }

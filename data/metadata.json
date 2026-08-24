@@ -1,48 +1,15 @@
 {
-  "last_refresh_utc": "2026-08-17T03:16:37.691854+00:00",
+  "last_refresh_utc": "2026-08-24T03:14:54.216071+00:00",
   "total_normalized": 1000,
-  "total_relevant": 370,
+  "total_relevant": 0,
   "by_source": {
     "curated_seed": 100,
-    "play_store": 310,
-    "app_store": 420,
-    "youtube": 170
+    "play_store": 319,
+    "app_store": 416,
+    "youtube": 165
   },
-  "by_canonical_tag": {
-    "Q2_frustrations": 116,
-    "Q3_jobs": 158,
-    "Q5_segments": 22,
-    "Q6_unmet": 32,
-    "Q4_repetition": 78,
-    "Q1_struggle": 26
-  },
-  "feature_mention_counts": {
-    "Premium": 43,
-    "Ads": 40,
-    "Discover Weekly": 19,
-    "Playlists": 14,
-    "DJ": 10,
-    "Release Radar": 8,
-    "Podcasts": 8,
-    "Daily Mix": 7,
-    "Liked Songs": 7,
-    "Queue": 7,
-    "Spotify Wrapped": 5,
-    "Free Tier": 5,
-    "Daylist": 4,
-    "Search": 4,
-    "Autoplay": 4,
-    "Home": 3,
-    "Made For You": 3,
-    "Smart Shuffle": 2,
-    "Skip Limit (Free)": 2,
-    "Browse": 2,
-    "Niche Mixes": 2,
-    "Enhance": 2,
-    "On Repeat": 2,
-    "Connect": 2,
-    "AI Playlist": 2
-  },
+  "by_canonical_tag": {},
+  "feature_mention_counts": {},
   "scrape_counts_this_run": {
     "play_store": 830,
     "app_store": 1050

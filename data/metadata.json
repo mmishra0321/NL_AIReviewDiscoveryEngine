@@ -1,12 +1,12 @@
 {
-  "last_refresh_utc": "2026-08-31T08:17:25.025455+00:00",
+  "last_refresh_utc": "2026-09-07T07:13:07.062227+00:00",
   "total_normalized": 1000,
   "total_relevant": 0,
   "by_source": {
     "curated_seed": 100,
-    "play_store": 308,
-    "app_store": 421,
-    "youtube": 171
+    "play_store": 301,
+    "app_store": 425,
+    "youtube": 174
   },
   "by_canonical_tag": {},
   "feature_mention_counts": {},

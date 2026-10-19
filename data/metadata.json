@@ -1,17 +1,18 @@
 {
-  "last_refresh_utc": "2026-10-12T08:46:22.598384+00:00",
+  "last_refresh_utc": "2026-10-19T07:31:14.112453+00:00",
   "total_normalized": 1000,
   "total_relevant": 0,
   "by_source": {
     "curated_seed": 100,
-    "play_store": 285,
-    "app_store": 433,
-    "youtube": 182
+    "play_store": 294,
+    "app_store": 97,
+    "youtube": 509
   },
   "by_canonical_tag": {},
   "feature_mention_counts": {},
   "scrape_counts_this_run": {
-    "play_store": 830
+    "play_store": 830,
+    "app_store": 100
   },
   "chroma_collection_size": 1889
 }
